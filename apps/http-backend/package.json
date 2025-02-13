@@ -9,20 +9,21 @@
     "dev": "npm run build && npm run start"
   },
   "devDependencies": {
-    "@types/jsonwebtoken": "^9.0.8",
+    "@repo/backend-common": "workspace:*",
+    "@repo/common": "workspace:*",
     "@repo/typescript-config": "workspace:*",
     "@types/express": "^5.0.0",
-    "@repo/backend-common": "workspace:*",
-    "@repo/common": "workspace: *"
+    "@types/jsonwebtoken": "^9.0.8"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "description": "",
   "dependencies": {
-    
+    "@repo/db": "workspace:^",
+    "@types/cors": "^2.8.17",
+    "cors": "^2.8.5",
     "express": "^4.21.2",
     "jsonwebtoken": "^9.0.2"
-    
   }
 }
