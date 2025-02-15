@@ -7,8 +7,8 @@ interface BarButtonProps {
     onClick?: () => void;
 }
 export function BarButton( { icon, children, activate, onClick }: BarButtonProps ) {
-    const styling = "flex rounded items-center justify-center w-10 h-10 bg-blue-800 text-white transition-all hover:bg-red-500 shadow-lg"
-    const activatedStyling = "flex rounded items-center justify-center w-10 h-10 bg-red-800 text-white transition-all hover:bg-red-500 shadow-lg"
+    const activatedStyling = "flex rounded items-center justify-center w-10 h-10 bg-blue-800 text-white transition-all hover:bg-red-500 shadow-lg"
+    const styling = "flex rounded items-center justify-center w-10 h-10 bg-red-800 text-white transition-all hover:bg-red-500 shadow-lg"
     let currentStyle = "";
     
     if(activate) {

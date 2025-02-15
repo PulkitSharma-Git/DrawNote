@@ -47,28 +47,7 @@ export async function initDraw(canvas: HTMLCanvasElement, roomId: string, socket
         startY = e.clientY
     })
 
-    canvas.addEventListener("mouseup", (e) => {
-        clicked = false
-        const width = e.clientX - startX;
-        const height = e.clientY - startY;
-        const shape: Shape = {
-            type: "rect",
-            x: startX,
-            y: startY,
-            height,
-            width
-        }
-        existingShapes.push(shape);
-
-        socket.send(JSON.stringify({
-            type: "chat",
-            message: JSON.stringify({
-                shape
-            }),
-            roomId
-        }))
-
-    })
+     
 
     canvas.addEventListener("mousemove", (e) => {
         if (clicked) {
@@ -76,7 +55,23 @@ export async function initDraw(canvas: HTMLCanvasElement, roomId: string, socket
             const height = e.clientY - startY;
             clearCanvas(existingShapes, canvas, ctx);
             ctx.strokeStyle = "rgba(255, 255, 255)"
-            ctx.strokeRect(startX, startY, width, height);
+            
+            //Logic to select shapes
+            const selected = window.selected;
+            if( selected === "rect") {
+                ctx.strokeRect(startX, startY, width, height);
+            } else if(selected === "circle") {
+                const radius = Math.max(height, width) / 2 ;
+                const centerX = startX +  radius;
+                const centerY = startY +  radius;
+                ctx.beginPath();
+                ctx.arc(centerX, centerY, radius, 0, Math.PI*2);
+                ctx.stroke();
+                ctx.closePath();
+
+            } else if(selected === "pencil") {
+
+            }
         }
     })            
 }
@@ -87,9 +82,21 @@ function clearCanvas(existingShapes: Shape[], canvas: HTMLCanvasElement, ctx: Ca
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
     existingShapes.map((shape) => {
-        if (shape.type === "rect") {
+        if (shape.type === "rect") { 
             ctx.strokeStyle = "rgba(255, 255, 255)"
             ctx.strokeRect(shape.x, shape.y, shape.width, shape.height);
+
+        }else if(shape.type === "circle") {
+            console.log(shape.radius)
+            ctx.beginPath();
+
+            if(shape.radius === -21) {
+                console.log("Ye -21 aaya kaha se ?")
+            }else {
+                ctx.arc(shape.centerX, shape.centerY, shape.radius, 0, Math.PI*2); 
+            }
+            ctx.stroke();
+            ctx.closePath();
         }
     })
 }
