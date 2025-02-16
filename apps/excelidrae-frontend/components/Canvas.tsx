@@ -5,8 +5,10 @@ import { BarButton } from "./BarButton";
 import { FaRegCircle, FaRegSquare } from "react-icons/fa";
 import { Bar } from "./Bar";
 import { GiStraightPipe } from "react-icons/gi";
+import { FaRegFileLines } from "react-icons/fa6";
+import { GoDash } from "react-icons/go";
 
-export type Tool = "circle" | "rect" | "pencil";
+export type Tool = "circle" | "rect" | "pencil" | "line";
 
 export function Canvas({
     socket,
@@ -49,6 +51,9 @@ export function Canvas({
             <BarButton onClick={() => {
                 setSelected("pencil")
             }} activate={selected === "pencil"} icon = {<GiStraightPipe  className="size-6"/>}></BarButton>
+            <BarButton onClick={() => {
+                setSelected("line")
+            }} activate={selected === "line"} icon = {<GoDash  className="size-6"/>}></BarButton>
         </Bar>
     </div>
 }

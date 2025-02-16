@@ -1,5 +1,6 @@
 import { Tool } from "@/components/Canvas";
 import { getExistingShapes } from "./http";
+import { start } from "repl";
 
 type Shape = {
     type: "rect";
@@ -12,6 +13,12 @@ type Shape = {
     centerX: number;
     centerY: number;
     radius: number;
+} | {
+    type: "line";
+    startX: number;
+    startY: number;
+    endX: number;
+    endY: number;
 }
 
 export class Game {
@@ -47,7 +54,7 @@ export class Game {
          
     }
 
-    setTool(tool: "circle" | "pencil" | "rect") {
+    setTool(tool: "circle" | "pencil" | "rect" | "line") {
         this.selected = tool;
 
     }
@@ -87,6 +94,12 @@ export class Game {
             this.ctx.arc(shape.centerX, shape.centerY, Math.abs(shape.radius), 0, Math.PI*2);  // -21 raduis wala error haldeled by making the raduis positive even if its negative
             this.ctx.stroke();
             this.ctx.closePath();
+
+        }else if(shape.type === "line") {
+            this.ctx.beginPath();
+            this.ctx.moveTo(shape.startX, shape.startY);
+            this.ctx.lineTo(shape.endX, shape.endY);
+            this.ctx.stroke();
         }
         })
     }
@@ -124,6 +137,14 @@ export class Game {
                 centerX: this.startX + radius,
                 centerY: this.startY + radius
             }
+        }else if(selected === "line") {
+            shape = {
+                type: "line",
+                startX: this.startX,
+                startY: this.startY,
+                endX: this.startX+width,
+                endY: this.startY+height
+            }
         }
 
         if(!shape) {
@@ -160,7 +181,15 @@ export class Game {
                 this.ctx.stroke();
                 this.ctx.closePath();
 
-            } else if(selected === "pencil") {
+            } else if(selected === "line") {
+                const endX = this.startX+width;
+                const endY = this.startY+height;
+
+                this.ctx.beginPath();
+                this.ctx.moveTo(this.startX, this.startY);
+                this.ctx.lineTo(endX, endY);
+                this.ctx.stroke();
+
 
             }
         }
