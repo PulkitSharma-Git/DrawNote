@@ -178,7 +178,7 @@ export class Game {
             input.addEventListener("blur", () => {
                 const text = input.value;
 
-                const shape = {
+                shape = {
                     type: "text",
                     startX,
                     startY,
@@ -188,29 +188,41 @@ export class Game {
                     text: text
                 }
 
-                console.log(shape)
+                
                 //this.drawTextOnCanvas(input.value, x, y);
                 document.body.removeChild(input);
                 //Draw on the canvas
                 this.ctx.font = `${shape.size}px ${shape.font}`; //"50px Arial"
                 this.ctx.fillStyle = `${shape.color}`;
                 this.ctx.fillText(`${shape.text}`, shape.startX , shape.startY + 27);
+
+                if (shape) { //Push for the text right in here since shape becomes null outside the block why? have to figure out
+                    this.existingShapes.push(shape);
+    
+                    this.socket.send(JSON.stringify({
+                        type: "chat",
+                        message: JSON.stringify({ shape }),
+                        roomId: this.roomId
+                    }));
+                }
+
             });
         }
 
-        if(!shape) {
-            return; 
+        console.log(shape)
+        if(shape && selected !== "text" ) {
+            console.log(this.existingShapes)
+            this.existingShapes.push(shape);
+            console.log(this.existingShapes)
+           
+            this.socket.send(JSON.stringify({
+                type: "chat",
+                message: JSON.stringify({
+                    shape
+                }),
+                roomId: this.roomId
+            }))
         }
-
-        this.existingShapes.push(shape);
-       
-        this.socket.send(JSON.stringify({
-            type: "chat",
-            message: JSON.stringify({
-                shape
-            }),
-            roomId: this.roomId
-        }))
     }
     mouseMoveHandler = (e: MouseEvent) => {
         if (this.clicked) {
