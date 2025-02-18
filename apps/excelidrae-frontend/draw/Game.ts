@@ -1,6 +1,5 @@
 import { Tool } from "@/components/Canvas";
 import { getExistingShapes } from "./http";
-import { start } from "repl";
 
 type Shape = {
     type: "rect";
@@ -19,6 +18,14 @@ type Shape = {
     startY: number;
     endX: number;
     endY: number;
+} | {
+    type: "text";
+    text: string;
+    startX: number;
+    startY: number;
+    size: string;
+    font: string;
+    color: string;
 }
 
 export class Game {
@@ -54,7 +61,7 @@ export class Game {
          
     }
 
-    setTool(tool: "circle" | "pencil" | "rect" | "line") {
+    setTool(tool: "circle" | "pencil" | "rect" | "line" | "text" ) {
         this.selected = tool;
 
     }
@@ -100,6 +107,10 @@ export class Game {
             this.ctx.moveTo(shape.startX, shape.startY);
             this.ctx.lineTo(shape.endX, shape.endY);
             this.ctx.stroke();
+        }else if(shape.type === "text"){
+            this.ctx.font = `${shape.size}px ${shape.font}`; //"50px Arial"
+            this.ctx.fillStyle = "purple";
+            this.ctx.fillText(`${shape.text}`, shape.startX, shape.startY); //this.ctx.fillText("Hello World",10,80);
         }
         })
     }
@@ -145,6 +156,18 @@ export class Game {
                 endX: this.startX+width,
                 endY: this.startY+height
             }
+        }else if(selected === "text") {
+            shape = {
+                type: "text",
+                startX: this.startX,
+                startY: this.startY,
+                font: "Arial",
+                size: "50",
+                color: "purple",
+                text: "Text Here" // How to edit this 
+
+            }
+
         }
 
         if(!shape) {
@@ -189,8 +212,14 @@ export class Game {
                 this.ctx.moveTo(this.startX, this.startY);
                 this.ctx.lineTo(endX, endY);
                 this.ctx.stroke();
-
-
+            } else if(selected === "text") {
+                const size = "50";
+                const font = "Arial";
+                const text = "Text Here";
+                const color = "purple";
+                this.ctx.font = `${size}px ${font}`; //"50px Arial"
+                this.ctx.fillStyle = `${color}`;
+                this.ctx.fillText(`${text}`, this.startX, this.startY); //this.ctx.fillText("Hello World",10,80);
             }
         }
 

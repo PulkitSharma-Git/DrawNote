@@ -5,10 +5,10 @@ import { BarButton } from "./BarButton";
 import { FaRegCircle, FaRegSquare } from "react-icons/fa";
 import { Bar } from "./Bar";
 import { GiStraightPipe } from "react-icons/gi";
-import { FaRegFileLines } from "react-icons/fa6";
 import { GoDash } from "react-icons/go";
+import { CiText } from "react-icons/ci";
 
-export type Tool = "circle" | "rect" | "pencil" | "line";
+export type Tool = "circle" | "rect" | "pencil" | "line" | "text";
 
 export function Canvas({
     socket,
@@ -40,7 +40,6 @@ export function Canvas({
 
     return <div>
         <canvas ref={canvasRef} width={window.innerWidth} height={window.innerHeight}></canvas>
-        <BarButton icon = {<FaRegSquare className="size-6"/>}></BarButton>
         <Bar>
             <BarButton onClick={() => {
                 setSelected("rect")
@@ -54,6 +53,9 @@ export function Canvas({
             <BarButton onClick={() => {
                 setSelected("line")
             }} activate={selected === "line"} icon = {<GoDash  className="size-6"/>}></BarButton>
+            <BarButton onClick={() => {
+                setSelected("text")
+            }} activate={selected === "text"} icon = {<CiText  className="size-6"/>}></BarButton>
         </Bar>
     </div>
 }

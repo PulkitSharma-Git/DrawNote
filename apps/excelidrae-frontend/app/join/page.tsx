@@ -29,7 +29,7 @@ export default function Join() {
                 router.push(`/canvas/${roomId}`);
 
             }catch(e) {
-                alert("failed to create room");
+                console.log("failed to create room: ", e);
             }
         } else {
             alert("room name possibly null");
