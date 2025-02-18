@@ -109,8 +109,8 @@ export class Game {
             this.ctx.stroke();
         }else if(shape.type === "text"){
             this.ctx.font = `${shape.size}px ${shape.font}`; //"50px Arial"
-            this.ctx.fillStyle = "purple";
-            this.ctx.fillText(`${shape.text}`, shape.startX, shape.startY); //this.ctx.fillText("Hello World",10,80);
+            this.ctx.fillStyle = `${shape.color}`;
+            this.ctx.fillText(`${shape.text}`, shape.startX, shape.startY +27); //this.ctx.fillText("Hello World",10,80);
         }
         })
     }
@@ -118,7 +118,7 @@ export class Game {
     mouseDownHandler = (e: MouseEvent) => {
         this.clicked = true
         this.startX = e.clientX
-        this. startY = e.clientY
+        this.startY = e.clientY
       
     }
     mouseUpHandler = (e: MouseEvent) => {
@@ -130,7 +130,6 @@ export class Game {
         let shape: Shape|null = null;
 
         if(selected === "rect") {
-            console.log("rect selected tha")
             shape = {
                 type: "rect",
                 x: this.startX,
@@ -140,7 +139,6 @@ export class Game {
             }
             
         }else if(selected === "circle") {
-            console.log("circle selected tha")
             const radius = Math.max(width, height) / 2;
             shape = {
                 type: "circle",
@@ -157,17 +155,47 @@ export class Game {
                 endY: this.startY+height
             }
         }else if(selected === "text") {
-            shape = {
-                type: "text",
-                startX: this.startX,
-                startY: this.startY,
-                font: "Arial",
-                size: "50",
-                color: "purple",
-                text: "Text Here" // How to edit this 
 
-            }
+            const input = document.createElement("input");
+            input.type = "text";
+            input.style.position = "absolute";
+            input.style.left = `${this.startX}px`;
+            input.style.top = `${this.startY}px`;
+            input.style.fontSize = "25px";
+            input.style.background = "transparent"
+            input.style.color = "white";
+            input.style.caretColor = "white";
+            input.style.border = "none";
+            input.style.outline = "none";
 
+            document.body.appendChild(input);
+            input.focus();
+
+            const startX = this.startX;
+            const startY = this.startY;
+
+
+            input.addEventListener("blur", () => {
+                const text = input.value;
+
+                const shape = {
+                    type: "text",
+                    startX,
+                    startY,
+                    font: "Arial",
+                    size: "25",
+                    color: "white",
+                    text: text
+                }
+
+                console.log(shape)
+                //this.drawTextOnCanvas(input.value, x, y);
+                document.body.removeChild(input);
+                //Draw on the canvas
+                this.ctx.font = `${shape.size}px ${shape.font}`; //"50px Arial"
+                this.ctx.fillStyle = `${shape.color}`;
+                this.ctx.fillText(`${shape.text}`, shape.startX , shape.startY + 27);
+            });
         }
 
         if(!shape) {
@@ -213,13 +241,7 @@ export class Game {
                 this.ctx.lineTo(endX, endY);
                 this.ctx.stroke();
             } else if(selected === "text") {
-                const size = "50";
-                const font = "Arial";
-                const text = "Text Here";
-                const color = "purple";
-                this.ctx.font = `${size}px ${font}`; //"50px Arial"
-                this.ctx.fillStyle = `${color}`;
-                this.ctx.fillText(`${text}`, this.startX, this.startY); //this.ctx.fillText("Hello World",10,80);
+                //Nothing
             }
         }
 
