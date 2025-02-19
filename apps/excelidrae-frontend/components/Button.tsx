@@ -1,14 +1,20 @@
-import { ReactNode } from "react"
+import { ReactNode } from "react";
 
 interface ButtonProps {
-    children: ReactNode;
-    onClick?: () => void;
+  children: ReactNode;
+  onClick?: () => void;
+  className?: string;
 }
 
-export function Button( { children, onClick }: ButtonProps) {
-    return <button className="relative inline-flex items-center justify-center p-0.5 mb-2 me-2 overflow-hidden text-sm font-medium text-gray-900 rounded-lg group bg-gradient-to-br from-red-200 via-red-300 to-yellow-200 group-hover:from-red-200 group-hover:via-red-300 group-hover:to-yellow-200 dark:text-white dark:hover:text-gray-900 focus:ring-4 focus:outline-none focus:ring-red-100 dark:focus:ring-red-400">
-    <span className="relative px-5 py-2.5 transition-all ease-in duration-75 bg-white dark:bg-gray-900 rounded-md group-hover:bg-transparent group-hover:dark:bg-transparent">
-    {children}
-    </span>
+export function Button({ children, onClick, className }: ButtonProps) {
+  return (
+    <button
+      onClick={onClick}
+      className={`relative inline-flex items-center justify-center w-full p-0.5 mb-2 me-2 overflow-hidden text-sm font-medium text-white rounded-lg group bg-gradient-to-br from-orange-500 via-orange-600 to-blue-500 group-hover:from-orange-400 group-hover:via-orange-500 group-hover:to-blue-400 focus:ring-4 focus:outline-none focus:ring-orange-300 dark:focus:ring-blue-500 ${className}`}
+    >
+      <span className="relative w-full px-5 py-2.5 transition-all ease-in duration-75 bg-black rounded-md group-hover:bg-transparent text-center">
+        {children}
+      </span>
     </button>
+  );
 }
