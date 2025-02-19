@@ -26,6 +26,9 @@ type Shape = {
     size: string;
     font: string;
     color: string;
+} | {
+    type: "pencil";
+    points: {x: number, y: number}[] //An array of (x, y) coordinates, storing every point where the user moves the mouse.
 }
 
 export class Game {
@@ -38,6 +41,7 @@ export class Game {
     private startX = 0;
     private startY = 0; 
     private selected: Tool = "circle";
+    private currentPencilStroke: { type: "pencil"; points: { x: number; y: number }[] } | null = null; // Array to store pencil strokes
     socket: WebSocket;
 
     constructor(canvas: HTMLCanvasElement, roomId: string, socket: WebSocket) {
@@ -64,6 +68,11 @@ export class Game {
     setTool(tool: "circle" | "pencil" | "rect" | "line" | "text" ) {
         this.selected = tool;
 
+        if (tool === "circle" || tool === "pencil" || tool === "rect" || tool === "line") {
+            this.canvas.style.cursor = "crosshair";
+        } else {
+            this.canvas.style.cursor = "pointer";
+        }
     }
 
     async init() {
@@ -84,7 +93,7 @@ export class Game {
         }
     }
 
-    clearCanvas() {
+    clearCanvas() { //Clears and Re-Renders whole canvas
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         this.ctx.fillStyle = "rgba(0, 0, 0)"
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
@@ -111,6 +120,14 @@ export class Game {
             this.ctx.font = `${shape.size}px ${shape.font}`; //"50px Arial"
             this.ctx.fillStyle = `${shape.color}`;
             this.ctx.fillText(`${shape.text}`, shape.startX, shape.startY +27); //this.ctx.fillText("Hello World",10,80);
+        }else if(shape.type === "pencil"){
+            this.ctx.beginPath();
+            shape.points.forEach((point, index) => { //Iterate and print all coordinates (prints lines between)
+                if (index === 0) this.ctx.moveTo(point.x, point.y);
+                else this.ctx.lineTo(point.x, point.y);
+            });
+            this.ctx.stroke();
+
         }
         })
     }
@@ -119,6 +136,10 @@ export class Game {
         this.clicked = true
         this.startX = e.clientX
         this.startY = e.clientY
+
+        if(this.selected === "pencil") { //Since clicked is also true means user is drawing
+            this.currentPencilStroke = { type: "pencil", points: [{ x: this.startX, y: this.startY }] }; //Push start point of drawing in array
+        }
       
     }
     mouseUpHandler = (e: MouseEvent) => {
@@ -207,6 +228,16 @@ export class Game {
                 }
 
             });
+        }else if(selected === "pencil") {
+            if (this.currentPencilStroke) {
+                this.existingShapes.push(this.currentPencilStroke); //Push coordinates array into shapes 
+                this.socket.send(JSON.stringify({ //Relay to othe ws connections
+                    type: "chat",
+                    message: JSON.stringify({ shape: this.currentPencilStroke }),
+                    roomId: this.roomId
+                }));
+                this.currentPencilStroke = null; // Reset after finishing stroke
+            }
         }
 
         console.log(shape)
@@ -230,11 +261,11 @@ export class Game {
             const height = e.clientY - this.startY;
             this.clearCanvas();
             this.ctx.strokeStyle = "rgba(255, 255, 255)"
-            
-            //Logic to select shapes
             const selected = this.selected;
+
             if( selected === "rect") {
                 this.ctx.strokeRect(this.startX, this.startY, width, height);
+
             } else if(selected === "circle") {
                 const radius = Math.max(height, width) / 2 ;
                 const centerX = this.startX +  radius;
@@ -252,8 +283,17 @@ export class Game {
                 this.ctx.moveTo(this.startX, this.startY);
                 this.ctx.lineTo(endX, endY);
                 this.ctx.stroke();
-            } else if(selected === "text") {
-                //Nothing
+
+            } else if(selected === "pencil") {
+                this.currentPencilStroke?.points.push({ x: e.clientX, y: e.clientY });
+            
+                this.clearCanvas(); // Clears and re-renders
+                this.ctx.beginPath();
+                this.currentPencilStroke?.points.forEach((point, index) => {
+                    if (index === 0) this.ctx.moveTo(point.x, point.y);
+                    else this.ctx.lineTo(point.x, point.y);
+                });
+                this.ctx.stroke();
             }
         }
 
