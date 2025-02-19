@@ -6,19 +6,16 @@ interface BarButtonProps {
     activate?: boolean;
     onClick?: () => void;
 }
-export function BarButton( { icon, children, activate, onClick }: BarButtonProps ) {
-    const activatedStyling = "flex rounded items-center justify-center w-10 h-10 bg-blue-800 text-white transition-all hover:bg-red-500 shadow-lg"
-    const styling = "flex rounded items-center justify-center w-10 h-10 bg-red-800 text-white transition-all hover:bg-red-500 shadow-lg"
-    let currentStyle = "";
-    
-    if(activate) {
-        currentStyle = styling;
-    }else {
-        currentStyle = activatedStyling;
-    }
 
-    return <button onClick={onClick} className={currentStyle}>
-        {icon}
-        {children}
-    </button>
+export function BarButton({ icon, children, activate, onClick }: BarButtonProps) {
+    const baseStyle = "flex items-center justify-center w-12 h-12 rounded-xl transition-all shadow-md";
+    const activatedStyle = "bg-gradient-to-br from-orange-500 via-red-500 to-blue-500 text-white shadow-lg scale-105";
+    const defaultStyle = "bg-gray-800 text-gray-300 hover:bg-gray-700 hover:text-white";
+
+    return (
+        <button onClick={onClick} className={`${baseStyle} ${activate ? activatedStyle : defaultStyle}`}>
+            {icon}
+            {children}
+        </button>
+    );
 }
