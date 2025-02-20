@@ -1,5 +1,7 @@
-import { Tool } from "@/components/Canvas";
+import { Color, Tool } from "@/components/Canvas";
 import { getExistingShapes } from "./http";
+import { colorCoder } from "./colorCoder";
+
 
 type Shape = {
     type: "rect";
@@ -7,17 +9,20 @@ type Shape = {
     y: number;
     width: number;
     height: number;
+    color: string;
 } | {
     type: "circle";
     centerX: number;
     centerY: number;
     radius: number;
+    color: string;
 } | {
     type: "line";
     startX: number;
     startY: number;
     endX: number;
     endY: number;
+    color: string;
 } | {
     type: "text";
     text: string;
@@ -28,8 +33,10 @@ type Shape = {
     color: string;
 } | {
     type: "pencil";
+    color: string;
     points: {x: number, y: number}[] //An array of (x, y) coordinates, storing every point where the user moves the mouse.
 }
+
 
 export class Game {
 
@@ -41,7 +48,8 @@ export class Game {
     private startX = 0;
     private startY = 0; 
     private selected: Tool = "circle";
-    private currentPencilStroke: { type: "pencil"; points: { x: number; y: number }[] } | null = null; // Array to store pencil strokes
+    private selectedColor: Color = "red-500";
+    private currentPencilStroke: { type: "pencil"; color: string; points: { x: number; y: number }[] } | null = null;
     socket: WebSocket;
 
     constructor(canvas: HTMLCanvasElement, roomId: string, socket: WebSocket) {
@@ -75,6 +83,10 @@ export class Game {
         }
     }
 
+    setColor(color: "red-500" | "blue-500" | "green-500" | "white") {
+        this.selectedColor = color;
+    }
+
     async init() {
         this.existingShapes = await getExistingShapes(this.roomId)
         this.clearCanvas();
@@ -99,13 +111,16 @@ export class Game {
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
         this.existingShapes.map((shape) => {
+            const color = colorCoder(shape.color, 1);
+
         if (shape.type === "rect") { 
-            this.ctx.strokeStyle = "rgba(255, 255, 255)"
+            this.ctx.strokeStyle = color;
             this.ctx.strokeRect(shape.x, shape.y, shape.width, shape.height);
 
         }else if(shape.type === "circle") {
             console.log(shape.radius)
             this.ctx.beginPath();
+            this.ctx.strokeStyle = color;
 
             this.ctx.arc(shape.centerX, shape.centerY, Math.abs(shape.radius), 0, Math.PI*2);  // -21 raduis wala error haldeled by making the raduis positive even if its negative
             this.ctx.stroke();
@@ -113,15 +128,17 @@ export class Game {
 
         }else if(shape.type === "line") {
             this.ctx.beginPath();
+            this.ctx.strokeStyle = color;
             this.ctx.moveTo(shape.startX, shape.startY);
             this.ctx.lineTo(shape.endX, shape.endY);
             this.ctx.stroke();
         }else if(shape.type === "text"){
             this.ctx.font = `${shape.size}px ${shape.font}`; //"50px Arial"
-            this.ctx.fillStyle = `${shape.color}`;
+            this.ctx.fillStyle = color;
             this.ctx.fillText(`${shape.text}`, shape.startX, shape.startY +27); //this.ctx.fillText("Hello World",10,80);
         }else if(shape.type === "pencil"){
             this.ctx.beginPath();
+            this.ctx.strokeStyle = color;
             shape.points.forEach((point, index) => { //Iterate and print all coordinates (prints lines between)
                 if (index === 0) this.ctx.moveTo(point.x, point.y);
                 else this.ctx.lineTo(point.x, point.y);
@@ -138,7 +155,7 @@ export class Game {
         this.startY = e.clientY
 
         if(this.selected === "pencil") { //Since clicked is also true means user is drawing
-            this.currentPencilStroke = { type: "pencil", points: [{ x: this.startX, y: this.startY }] }; //Push start point of drawing in array
+            this.currentPencilStroke = { type: "pencil",color: this.selectedColor, points: [{ x: this.startX, y: this.startY }] }; //Push start point of drawing in array
         }
       
     }
@@ -156,7 +173,8 @@ export class Game {
                 x: this.startX,
                 y: this.startY,
                 height,
-                width
+                width,
+                color: this.selectedColor
             }
             
         }else if(selected === "circle") {
@@ -165,7 +183,8 @@ export class Game {
                 type: "circle",
                 radius: Math.max(width, height) /2,
                 centerX: this.startX + radius,
-                centerY: this.startY + radius
+                centerY: this.startY + radius,
+                color: this.selectedColor
             }
         }else if(selected === "line") {
             shape = {
@@ -173,7 +192,8 @@ export class Game {
                 startX: this.startX,
                 startY: this.startY,
                 endX: this.startX+width,
-                endY: this.startY+height
+                endY: this.startY+height,
+                color: this.selectedColor
             }
         }else if(selected === "text") {
 
@@ -184,8 +204,8 @@ export class Game {
             input.style.top = `${this.startY}px`;
             input.style.fontSize = "25px";
             input.style.background = "transparent"
-            input.style.color = "white";
-            input.style.caretColor = "white";
+            input.style.color = colorCoder(this.selectedColor, 1); 
+            input.style.caretColor = colorCoder(this.selectedColor, 1);
             input.style.border = "none";
             input.style.outline = "none";
 
@@ -205,7 +225,7 @@ export class Game {
                     startY,
                     font: "Arial",
                     size: "25",
-                    color: "white",
+                    color: this.selectedColor,
                     text: text
                 }
 
@@ -214,7 +234,7 @@ export class Game {
                 document.body.removeChild(input);
                 //Draw on the canvas
                 this.ctx.font = `${shape.size}px ${shape.font}`; //"50px Arial"
-                this.ctx.fillStyle = `${shape.color}`;
+                this.ctx.fillStyle = colorCoder(this.selectedColor, 1);
                 this.ctx.fillText(`${shape.text}`, shape.startX , shape.startY + 27);
 
                 if (shape) { //Push for the text right in here since shape becomes null outside the block why? have to figure out
@@ -260,7 +280,7 @@ export class Game {
             const width = e.clientX - this.startX;
             const height = e.clientY - this.startY;
             this.clearCanvas();
-            this.ctx.strokeStyle = "rgba(255, 255, 255)"
+            this.ctx.strokeStyle = colorCoder(this.selectedColor, 1);
             const selected = this.selected;
 
             if( selected === "rect") {
@@ -289,6 +309,7 @@ export class Game {
             
                 this.clearCanvas(); // Clears and re-renders
                 this.ctx.beginPath();
+                this.ctx.strokeStyle = colorCoder(this.selectedColor, 1);
                 this.currentPencilStroke?.points.forEach((point, index) => {
                     if (index === 0) this.ctx.moveTo(point.x, point.y);
                     else this.ctx.lineTo(point.x, point.y);

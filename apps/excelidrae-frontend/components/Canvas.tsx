@@ -7,8 +7,11 @@ import { Bar } from "./Bar";
 import { GiStraightPipe } from "react-icons/gi";
 import { GoDash } from "react-icons/go";
 import { CiText } from "react-icons/ci";
+import ColorIcon from "./ColorIcon";
+import Pallate from "./Pallate";
 
 export type Tool = "circle" | "rect" | "pencil" | "line" | "text";
+export type Color = "red-500" | "green-500" | "blue-500" | "white"
 
 export function Canvas({
     socket,
@@ -17,14 +20,15 @@ export function Canvas({
     socket: WebSocket
     roomId: string;
 }) {
-
+    const [selectColor, setselectColor] = useState("white")
     const [selected, setSelected] = useState<Tool>("circle");
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const [game, setGame] = useState<Game>();
 
     useEffect( () => {
         game?.setTool(selected);
-    }, [selected, game]);
+        game?.setColor(selectColor);
+    }, [selectColor, selected, game]);
 
     useEffect(()=> { //In dev mode effects run two times the destroy function is to destroy one instance of the class otherwise it causes problem .... The problem is that out of two instances one classes gets the default tool selected circle and other gets what we select sqare therefore on making a square a circle is also rendered
         if(canvasRef.current) {
@@ -55,7 +59,21 @@ export function Canvas({
             }} activate={selected === "line"} icon = {<GoDash  className="size-6"/>}></BarButton>
             <BarButton onClick={() => {
                 setSelected("text")
-            }} activate={selected === "text"} icon = {<CiText  className="size-6"/>}></BarButton>
+            }} activate={selected === "text"} icon = {<CiText  className="size-6"/>}></BarButton> 
         </Bar>
+        <Pallate>
+            <ColorIcon onClick = {
+                () => { setselectColor("red-500")
+            }} activate = { selectColor === "red-500" }  color="red-500"></ColorIcon>
+            <ColorIcon onClick = {
+                () => { setselectColor("green-500")
+            }}  activate = { selectColor === "green-500" }   color="green-500"></ColorIcon>
+            <ColorIcon onClick = {
+                () => { setselectColor("blue-500")
+            }}  activate = { selectColor === "blue-500" }   color="blue-500"></ColorIcon>
+            <ColorIcon onClick = {
+                () => { setselectColor("white")
+            }}  activate = { selectColor === "white" }   color="white"></ColorIcon>
+        </Pallate>
     </div>
 }
