@@ -72,6 +72,24 @@ app.post("/signin", async (req, res) => {
     })
 })
 
+app.get("/getRooms", middleware, async (req, res) => {
+    const userId = req.userId;
+
+    try {
+        const rooms = await prismaClient.room.findMany({
+            where: {
+                adminId: userId
+            }
+        });
+
+        res.json({ rooms });
+    } catch (e) {
+        console.error(e);
+        res.status(500).json({ message: "Something went wrong" });
+    }
+});
+
+
 app.post("/room", middleware, async (req, res) => {
     const parsedData = CreateRoomSchema.safeParse(req.body);
     if (!parsedData.success) {
