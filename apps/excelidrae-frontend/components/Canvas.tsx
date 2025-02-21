@@ -6,12 +6,12 @@ import { FaRegCircle, FaRegSquare } from "react-icons/fa";
 import { Bar } from "./Bar";
 import { GiStraightPipe } from "react-icons/gi";
 import { GoDash } from "react-icons/go";
-import { CiText } from "react-icons/ci";
 import ColorIcon from "./ColorIcon";
 import Pallate from "./Pallate";
+import { IoText } from "react-icons/io5";
 
 export type Tool = "circle" | "rect" | "pencil" | "line" | "text";
-export type Color = "red-500" | "green-500" | "blue-500" | "white"
+export type Color = "red-500" | "green-500" | "blue-500" | "white";
 
 export function Canvas({
     socket,
@@ -20,7 +20,7 @@ export function Canvas({
     socket: WebSocket
     roomId: string;
 }) {
-    const [selectColor, setselectColor] = useState("white")
+    const [selectColor, setselectColor] = useState<Color>("white")
     const [selected, setSelected] = useState<Tool>("circle");
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const [game, setGame] = useState<Game>();
@@ -59,7 +59,7 @@ export function Canvas({
             }} activate={selected === "line"} icon = {<GoDash  className="size-6"/>}></BarButton>
             <BarButton onClick={() => {
                 setSelected("text")
-            }} activate={selected === "text"} icon = {<CiText  className="size-6"/>}></BarButton> 
+            }} activate={selected === "text"} icon = {<IoText  className="size-6"/>}></BarButton> 
         </Bar>
         <Pallate>
             <ColorIcon onClick = {

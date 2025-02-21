@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import React from 'react';
 import { Button } from './Button';
+import { Button2 } from './Button2';
 
 const Navbar = () => {
   return (
@@ -16,7 +17,7 @@ const Navbar = () => {
       {/* Buttons */}
       <div className="flex gap-4">
         <Link href="/signup">
-          <Button>Sign Up</Button>
+          <Button2>Sign Up</Button2>
         </Link>
 
         <Link href="/signin">
