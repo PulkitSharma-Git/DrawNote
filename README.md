@@ -1,58 +1,49 @@
-# Turborepo Tailwind CSS starter
+# DrawNote
+<img width="161" alt="Screenshot 2025-02-21 at 12 09 56 PM" src="https://github.com/user-attachments/assets/8ae2f951-3f72-47f1-a002-a7e61dcd2ee0" />
 
-This Turborepo starter is maintained by the Turborepo core team.
 
-## Using this example
 
-Run the following command:
+## 🎥 Demo & Screenshots
 
-```sh
-npx create-turbo@latest -e with-tailwind
-```
+📺 **Demo Video:** 
 
-## What's inside?
+https://github.com/user-attachments/assets/3ddfe3c9-c0b2-418d-a71b-813759d0fbe7
 
-This Turborepo includes the following packages/apps:
 
-### Apps and Packages
 
-- `docs`: a [Next.js](https://nextjs.org/) app with [Tailwind CSS](https://tailwindcss.com/)
-- `web`: another [Next.js](https://nextjs.org/) app with [Tailwind CSS](https://tailwindcss.com/)
-- `ui`: a stub React component library with [Tailwind CSS](https://tailwindcss.com/) shared by both `web` and `docs` applications
-- `@repo/eslint-config`: `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`)
-- `@repo/typescript-config`: `tsconfig.json`s used throughout the monorepo
+🖼️ **Screenshots:**<img width="1440" alt="Screenshot 2025-02-21 at 11 50 23 AM" src="https://github.com/user-attachments/assets/42c27b43-3cd5-4c77-8e94-6520900a816b" />
+<img width="1438" alt="Screenshot 2025-02-21 at 11 50 06 AM" src="https://github.com/user-attachments/assets/1f76589d-ace7-4353-8e20-0a2be06465e8" />
+<img width="1440" alt="Screenshot 2025-02-21 at 11 49 26 AM" src="https://github.com/user-attachments/assets/605edcda-cffe-44fb-b306-1286f69559af" />
+<img width="1437" alt="Screenshot 2025-02-21 at 11 48 52 AM" src="https://github.com/user-attachments/assets/f20eed77-2c6a-4079-8d68-bd2d2b6fa2f3" />
 
-Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
+## 🖌️ Real-Time Collaborative Whiteboard
 
-### Building packages/ui
+**DrawNote** is a real-time, collaborative whiteboard application designed for brainstorming, sketching, and team discussions. Users can join rooms and illustrate their ideas seamlessly using raw Canvas APIs.
 
-This example is set up to produce compiled styles for `ui` components into the `dist` directory. The component `.tsx` files are consumed by the Next.js apps directly using `transpilePackages` in `next.config.js`. This was chosen for several reasons:
+## 🚀 Features
 
-- Make sharing one `tailwind.config.js` to apps and packages as easy as possible.
-- Make package compilation simple by only depending on the Next.js Compiler and `tailwindcss`.
-- Ensure Tailwind classes do not overwrite each other. The `ui` package uses a `ui-` prefix for it's classes.
-- Maintain clear package export boundaries.
+- 🎨 **Canvas-Based Drawing**: Intuitive and responsive drawing experience.
+- 🏠 **Room-Based Collaboration**: Create or join rooms for real-time teamwork.
+- 📡 **Real-Time Updates**: WebSockets-powered instant synchronization.
+- 🔒 **JWT Authentication**: Secure user access and session management.
+- 🛠 **Scalable Backend**: Built with Prisma and PostgreSQL for efficiency.
+- 📏 **Zod Validation**: Ensures structured and reliable data flow.
+- 📂 **Save & Export**: Ability to save and export drawings.
+- 📱 **Responsive UI**: Works across devices for seamless usage.
 
-Another option is to consume `packages/ui` directly from source without building. If using this option, you will need to update the `tailwind.config.js` in your apps to be aware of your package locations, so it can find all usages of the `tailwindcss` class names for CSS compilation.
+## 🛠 Tech Stack
 
-For example, in [tailwind.config.js](packages/tailwind-config/tailwind.config.js):
+### Frontend
+- **Next.js**: Interactive UI framework
+- **Canvas API**: Core drawing functionality
 
-```js
-  content: [
-    // app content
-    `src/**/*.{js,ts,jsx,tsx}`,
-    // include packages if not transpiling
-    "../../packages/ui/*.{js,ts,jsx,tsx}",
-  ],
-```
+### Backend
+- **Express.js**: API & real-time handling
+- **Node.js**: JavaScript runtime
+- **WebSockets (ws)**: Real-time communication
+- **JWT**: Secure authentication
+- **Zod**: Input validation
 
-If you choose this strategy, you can remove the `tailwindcss` and `autoprefixer` dependencies from the `ui` package.
-
-### Utilities
-
-This Turborepo has some additional tools already setup for you:
-
-- [Tailwind CSS](https://tailwindcss.com/) for styles
-- [TypeScript](https://www.typescriptlang.org/) for static type checking
-- [ESLint](https://eslint.org/) for code linting
-- [Prettier](https://prettier.io) for code formatting
+### Database
+- **PostgreSQL**: Relational database
+- **Prisma**: ORM for PostgreSQL
