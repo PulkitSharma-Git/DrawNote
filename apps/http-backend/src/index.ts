@@ -159,4 +159,19 @@ app.get("/room/:slug", async (req, res) => {
     })
 })
 
+app.get("/getUser", middleware, async (req, res) => {
+    const userId = req.userId;
+
+    const user = await prismaClient.user.findFirst({
+        where: {
+            id: userId
+        }
+    })
+
+    res.json({
+        user
+    })
+
+})
+
 app.listen(3001);
