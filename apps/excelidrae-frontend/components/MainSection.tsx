@@ -33,7 +33,7 @@ export default function MainSection() {
         transition={{ duration: 0.5, ease: "easeOut", delay: 0.6 }}
         className="mt-8 flex gap-6"
       >
-        <Link href="/signup">
+        <Link href="/join">
           <Button>Get Started</Button>
         </Link>
       </motion.div>

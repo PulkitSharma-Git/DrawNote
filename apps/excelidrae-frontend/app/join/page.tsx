@@ -37,8 +37,8 @@ export default function JoinPage() {
           },
         });
 
-        setRooms(response.data.rooms); // Assuming API returns { rooms: [...] }
-      } catch (err) {
+        setRooms(response.data.rooms); //API returns { rooms: [...] }
+      } catch {
         setError("Failed to fetch rooms.");
       } finally {
         setLoading(false);
