@@ -1,6 +1,7 @@
 import React from "react";
 import { IoPersonCircleOutline } from "react-icons/io5";
 import { motion } from "framer-motion";
+import { useRouter } from "next/navigation";
 
 interface UserDetailsProps {
   email: string;
@@ -8,6 +9,7 @@ interface UserDetailsProps {
 }
 
 const UserDetails: React.FC<UserDetailsProps> = ({ email, name }) => {
+  const router  = useRouter();
   return (
     <motion.div
       initial={{ opacity: 0, x: 20 }}
@@ -34,6 +36,11 @@ const UserDetails: React.FC<UserDetailsProps> = ({ email, name }) => {
         whileTap={{ scale: 0.97 }} // Tap effect
         transition={{ type: "spring", stiffness: 200, damping: 15 }}
         className="w-full mt-4 px-4 py-2 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-xl font-bold shadow-md"
+
+        onClick={ () => {
+          localStorage.removeItem("token");
+          router.push("/")
+        }}
       >
         Logout
       </motion.button>
