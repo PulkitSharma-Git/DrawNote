@@ -44,7 +44,7 @@ export function RoomForm() {
   return (
     <div className="flex flex-col items-center gap-6 bg-white/10 backdrop-blur-lg border border-white/20 p-8 rounded-3xl shadow-lg max-w-md mx-auto">
       {/* Heading */}
-      <h2 className="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-blue-500">
+      <h2 className="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-orange-400 via-red-500 to-blue-500">
         Join or Create a Room
       </h2>
 

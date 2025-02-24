@@ -9,8 +9,10 @@ import { GoDash } from "react-icons/go";
 import ColorIcon from "./ColorIcon";
 import Pallate from "./Pallate";
 import { IoText } from "react-icons/io5";
+import { BiMove } from "react-icons/bi";
+import { BsDiamond } from "react-icons/bs";
 
-export type Tool = "circle" | "rect" | "pencil" | "line" | "text";
+export type Tool = "circle" | "rect" | "pencil" | "line" | "text" | "move" | "diamond";
 export type Color = "red-500" | "green-500" | "blue-500" | "white";
 
 export function Canvas({
@@ -52,6 +54,9 @@ export function Canvas({
                 setSelected("circle")
             }} activate={selected === "circle"} icon = {<FaRegCircle className="size-6"/>}></BarButton>
             <BarButton onClick={() => {
+                setSelected("diamond")
+            }} activate={selected === "diamond"} icon = {<BsDiamond  className="size-6"/>}></BarButton>
+            <BarButton onClick={() => {
                 setSelected("pencil")
             }} activate={selected === "pencil"} icon = {<GiStraightPipe  className="size-6"/>}></BarButton>
             <BarButton onClick={() => {
@@ -60,6 +65,10 @@ export function Canvas({
             <BarButton onClick={() => {
                 setSelected("text")
             }} activate={selected === "text"} icon = {<IoText  className="size-6"/>}></BarButton> 
+            <BarButton onClick={() => {
+                setSelected("move")
+            }} activate={selected === "move"} icon = {<BiMove  className="size-6"/>}></BarButton> 
+             
         </Bar>
         <Pallate>
             <ColorIcon onClick = {

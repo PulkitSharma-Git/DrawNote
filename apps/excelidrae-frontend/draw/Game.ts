@@ -35,6 +35,14 @@ type Shape = {
     type: "pencil";
     color: string;
     points: {x: number, y: number}[] //An array of (x, y) coordinates, storing every point where the user moves the mouse.
+} | {
+    type: "diamond";
+    color: string;
+    centerX: number;
+    centerY: number;
+    width: number;
+    height: number;
+
 }
 
 
@@ -73,10 +81,10 @@ export class Game {
          
     }
 
-    setTool(tool: "circle" | "pencil" | "rect" | "line" | "text" ) {
+    setTool(tool: "circle" | "pencil" | "rect" | "line" | "text" | "diamond" ) {
         this.selected = tool;
 
-        if (tool === "circle" || tool === "pencil" || tool === "rect" || tool === "line") {
+        if (tool === "circle" || tool === "pencil" || tool === "rect" || tool === "line" || tool === "diamond") {
             this.canvas.style.cursor = "crosshair";
         } else {
             this.canvas.style.cursor = "pointer";
@@ -145,6 +153,19 @@ export class Game {
             });
             this.ctx.stroke();
 
+        } else if(shape.type === "diamond") {
+            this.ctx.beginPath();
+            this.ctx.strokeStyle  = color;
+
+            // Draw diamond using centerX, centerY, width, and height
+            this.ctx.moveTo(shape.centerX, shape.centerY - shape.height/2); // Top point
+            this.ctx.lineTo(shape.centerX + shape.width/2, shape.centerY); // Right point
+            this.ctx.lineTo(shape.centerX, shape.centerY + shape.height/2); // Bottom point
+            this.ctx.lineTo(shape.centerX - shape.width/2, shape.centerY); // Left point
+            this.ctx.lineTo(shape.centerX, shape.centerY - shape.height/2); // Back to top point
+
+            this.ctx.stroke();
+            this.ctx.closePath();
         }
         })
     }
@@ -195,6 +216,19 @@ export class Game {
                 endY: this.startY+height,
                 color: this.selectedColor
             }
+        }else if(selected === "diamond") {
+            // Calculate center from start point and current width/height
+            const centerX = this.startX + width/2;
+            const centerY = this.startY + height/2;
+            
+            shape = {
+                type: "diamond",
+                centerX,
+                centerY,
+                width: Math.abs(width),
+                height: Math.abs(height),
+                color: this.selectedColor
+        }
         }else if(selected === "text") {
 
             const input = document.createElement("input");
@@ -303,6 +337,21 @@ export class Game {
                 this.ctx.moveTo(this.startX, this.startY);
                 this.ctx.lineTo(endX, endY);
                 this.ctx.stroke();
+                
+            } else if(selected === "diamond") {
+                // Calculate center from start point and width/height
+                const centerX = this.startX + width/2;
+                const centerY = this.startY + height/2;
+                
+                this.ctx.beginPath();
+                // Draw diamond shape during mouse movement
+                this.ctx.moveTo(centerX, centerY - Math.abs(height)/2); // Top point
+                this.ctx.lineTo(centerX + Math.abs(width)/2, centerY); // Right point
+                this.ctx.lineTo(centerX, centerY + Math.abs(height)/2); // Bottom point
+                this.ctx.lineTo(centerX - Math.abs(width)/2, centerY); // Left point
+                this.ctx.lineTo(centerX, centerY - Math.abs(height)/2); // Back to top
+                this.ctx.stroke();
+                this.ctx.closePath();
 
             } else if(selected === "pencil") {
                 this.currentPencilStroke?.points.push({ x: e.clientX, y: e.clientY });
@@ -315,7 +364,7 @@ export class Game {
                     else this.ctx.lineTo(point.x, point.y);
                 });
                 this.ctx.stroke();
-            }
+            } 
         }
 
     }
