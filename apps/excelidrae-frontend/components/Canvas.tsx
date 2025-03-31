@@ -32,7 +32,7 @@ export function Canvas({
         game?.setColor(selectColor);
     }, [selectColor, selected, game]);
 
-    useEffect(()=> { //In dev mode effects run two times the destroy function is to destroy one instance of the class otherwise it causes problem .... The problem is that out of two instances one classes gets the default tool selected circle and other gets what we select sqare therefore on making a square a circle is also rendered
+    useEffect(()=> { //In dev mode effects run two times the destroy function is to destroy one instance of the class otherwise it causes problem .... The problem is that out of two instances one classes gets the default tool selected circle and other gets what we select sqare therefore on making a square a circle was also being rendered (now solved)
         if(canvasRef.current) {
             const g = new Game(canvasRef.current, roomId, socket)
             setGame(g);
@@ -42,7 +42,7 @@ export function Canvas({
             }
         }
 
-    }, [canvasRef]); 
+    }, [canvasRef, roomId, socket]); 
 
     return <div>
         <canvas ref={canvasRef} width={window.innerWidth} height={window.innerHeight}></canvas>

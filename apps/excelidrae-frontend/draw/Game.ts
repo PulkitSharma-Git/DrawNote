@@ -81,7 +81,7 @@ export class Game {
          
     }
 
-    setTool(tool: "circle" | "pencil" | "rect" | "line" | "text" | "diamond" ) {
+    setTool(tool: "circle" | "pencil" | "rect" | "line" | "text" | "diamond" | "move") {
         this.selected = tool;
 
         if (tool === "circle" || tool === "pencil" || tool === "rect" || tool === "line" || tool === "diamond") {
@@ -337,16 +337,16 @@ export class Game {
                 this.ctx.moveTo(this.startX, this.startY);
                 this.ctx.lineTo(endX, endY);
                 this.ctx.stroke();
-                
+
             } else if(selected === "diamond") {
                 // Calculate center from start point and width/height
                 const centerX = this.startX + width/2;
                 const centerY = this.startY + height/2;
                 
                 this.ctx.beginPath();
-                // Draw diamond shape during mouse movement
+                // Draw diamod shape during mouse movement
                 this.ctx.moveTo(centerX, centerY - Math.abs(height)/2); // Top point
-                this.ctx.lineTo(centerX + Math.abs(width)/2, centerY); // Right point
+                this.ctx.lineTo(centerX + Math.abs(width)/2, centerY); // Righ point
                 this.ctx.lineTo(centerX, centerY + Math.abs(height)/2); // Bottom point
                 this.ctx.lineTo(centerX - Math.abs(width)/2, centerY); // Left point
                 this.ctx.lineTo(centerX, centerY - Math.abs(height)/2); // Back to top

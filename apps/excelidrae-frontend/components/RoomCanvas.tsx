@@ -19,7 +19,7 @@ export function RoomCanvas({roomId}: {roomId: string}) {
             }))
         }
         
-    }, [])
+    }, [roomId])
 
     if(!socket) {
         return <div>
