@@ -8,12 +8,26 @@ export const Input1 = forwardRef<HTMLInputElement, InputProps>(
       <input
         ref={ref}
         {...props}
-        className={`w-full px-4 py-3 text-white bg-white/10 border border-white/20 rounded-xl 
-          outline-none backdrop-blur-xl transition-all duration-300 ease-in-out
-          shadow-md shadow-orange-500/10 hover:shadow-orange-500/20
-          hover:bg-white/20 hover:border-orange-300/50 
-          focus:ring-2 focus:ring-orange-400/50 focus:bg-black/30 
-          placeholder-gray-300 ${className || ""}`}
+        className={`
+          w-full px-4 py-3
+          rounded-xl
+          bg-white/10 text-white
+          border border-white/15
+          backdrop-blur-xl
+          outline-none
+          transition-all duration-300 ease-out
+          placeholder:text-white/40
+
+          hover:bg-white/15 hover:border-white/25
+
+          focus:bg-black/40
+          focus:border-blue-400/40
+          focus:ring-2 focus:ring-blue-500/30
+
+          shadow-[0_4px_20px_rgba(0,0,0,0.4)]
+
+          ${className || ""}
+        `}
       />
     );
   }
