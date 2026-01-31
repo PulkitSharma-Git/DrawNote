@@ -8,12 +8,20 @@ interface PageLayoutProps {
 
 export default function PageLayout({ children }: PageLayoutProps) {
   return (
-    <div className="relative min-h-screen bg-black text-white">
-      {/* Background Gradient */}
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(255,115,0,0.2),_transparent),_radial-gradient(circle_at_bottom_right,_rgba(0,128,255,0.2),_transparent)]"></div>
+    <div className="relative min-h-screen text-white overflow-hidden bg-[#0b0d12]">
 
-      {/* Grid Pattern Overlay */}
-      <div className="absolute inset-0 bg-[url('/pattern.png')] opacity-20"></div>
+      {/* Soft Color Glows */}
+      <div className="absolute -top-40 -left-40 w-[500px] h-[500px]
+        bg-orange-500/20 rounded-full blur-[120px]" />
+
+      <div className="absolute top-1/3 -right-40 w-[500px] h-[500px]
+        bg-blue-500/20 rounded-full blur-[140px]" />
+
+      <div className="absolute bottom-0 left-1/4 w-[400px] h-[400px]
+        bg-purple-500/20 rounded-full blur-[140px]" />
+
+      {/* Subtle Noise Overlay */}
+      <div className="absolute inset-0 bg-[url('/noise.png')] opacity-[0.035]" />
 
       {/* Content */}
       <div className="relative z-10">
@@ -24,3 +32,4 @@ export default function PageLayout({ children }: PageLayoutProps) {
     </div>
   );
 }
+

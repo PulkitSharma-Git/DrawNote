@@ -70,19 +70,6 @@ export function Canvas({
             }} activate={selected === "move"} icon = {<BiMove  className="size-6"/>}></BarButton> 
              
         </Bar>
-        <Pallate>
-            <ColorIcon onClick = {
-                () => { setselectColor("red-500")
-            }} activate = { selectColor === "red-500" }  color="red-500"></ColorIcon>
-            <ColorIcon onClick = {
-                () => { setselectColor("green-500")
-            }}  activate = { selectColor === "green-500" }   color="green-500"></ColorIcon>
-            <ColorIcon onClick = {
-                () => { setselectColor("blue-500")
-            }}  activate = { selectColor === "blue-500" }   color="blue-500"></ColorIcon>
-            <ColorIcon onClick = {
-                () => { setselectColor("white")
-            }}  activate = { selectColor === "white" }   color="white"></ColorIcon>
-        </Pallate>
+        <Pallate onColorSelect={(color) => setselectColor(color as Color)} />
     </div>
 }

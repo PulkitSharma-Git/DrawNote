@@ -1,14 +1,15 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { RoomForm } from "@/components/RoomForm";
-import PageLayout from "@/components/PageLayout";
-import Room from "@/components/Room";
-import Rooms from "@/components/Rooms";
-import axios from "axios";
-import { HTTP_BACKEND } from "@/config";
-import { SiSpinrilla } from "react-icons/si";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import axios from "axios";
+import { SiSpinrilla } from "react-icons/si";
+
+import PageLayout from "@/components/PageLayout";
+import { RoomForm } from "@/components/RoomForm";
+import Rooms from "@/components/Rooms";
+import Room from "@/components/Room";
+import { HTTP_BACKEND } from "@/config";
 
 interface RoomType {
   id: string;
@@ -22,61 +23,67 @@ export default function JoinPage() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    async function fetchRooms() {
+    const fetchRooms = async () => {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        setError("You must be logged in.");
+        setLoading(false);
+        return;
+      }
+
       try {
-        const token = localStorage.getItem("token");
-        if (!token) {
-          setError("No authentication token found.");
-          setLoading(false);
-          return;
-        }
-
-        const response = await axios.get(`${HTTP_BACKEND}/getRooms`, {
-          headers: {
-            Authorization: token,
-          },
+        const { data } = await axios.get(`${HTTP_BACKEND}/getRooms`, {
+          headers: { Authorization: token },
         });
-
-        setRooms(response.data.rooms); //API returns { rooms: [...] }
+        setRooms(data.rooms ?? []);
       } catch {
         setError("Failed to fetch rooms.");
       } finally {
         setLoading(false);
       }
-    }
+    };
 
     fetchRooms();
   }, []);
 
   return (
     <PageLayout>
-      <div className="pt-24">
-        <RoomForm />
-      </div>
+      <main className="pt-24 pb-20">
+        {/* Room Form */}
+        <section className="mb-12 flex justify-center">
+          <RoomForm />
+        </section>
 
-      <div className="text-transparent text-2xl font-bold pt-5 w-fit mx-auto 
-                bg-clip-text bg-gradient-to-r from-orange-500 via-red-500 to-blue-500">
-                Your Rooms
-      </div>
+        {/* Rooms List */}
+        <section className="max-w-6xl mx-auto px-6">
+          <h2 className="text-2xl font-bold text-gray-50 mb-6">
+            Your Rooms
+          </h2>
 
-      
-      <Rooms>
-      {loading && (
-      <div className="flex justify-center w-screen">
-      <SiSpinrilla className="text-white text-4xl animate-spin" />
-      </div>
-        )}
-        
-        {error && <p className="text-red-500 text-center">{error}</p>}
-        {!loading &&
-          !error &&
-          
-          rooms.map((room) => (
-            <Room onClick={() => {
-              router.push(`/canvas/${room.id}`)
-            }} key={room.id} roomId={room.id} roomname={room.slug} />
-          ))}
-      </Rooms>
+          {loading && (
+            <div className="flex justify-center py-10">
+              <SiSpinrilla className="text-gray-50 text-3xl animate-spin" />
+            </div>
+          )}
+
+          {error && (
+            <p className="text-red-500 text-center py-6">{error}</p>
+          )}
+
+          {!loading && !error && (
+            <Rooms>
+              {rooms.map((room) => (
+                <Room
+                  key={room.id}
+                  roomId={room.id}
+                  roomname={room.slug}
+                  onClick={() => router.push(`/canvas/${room.id}`)}
+                />
+              ))}
+            </Rooms>
+          )}
+        </section>
+      </main>
     </PageLayout>
   );
 }
