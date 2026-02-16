@@ -6,7 +6,6 @@ import { FaRegCircle, FaRegSquare } from "react-icons/fa";
 import { Bar } from "./Bar";
 import { GiStraightPipe } from "react-icons/gi";
 import { GoDash } from "react-icons/go";
-import ColorIcon from "./ColorIcon";
 import Pallate from "./Pallate";
 import { IoText } from "react-icons/io5";
 import { BiMove } from "react-icons/bi";
