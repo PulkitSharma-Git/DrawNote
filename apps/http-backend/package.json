@@ -25,5 +25,8 @@
     "cors": "^2.8.5",
     "express": "^4.21.2",
     "jsonwebtoken": "^9.0.2"
-  }
+  },
+  "packageManager": "pnpm@9.15.9",
+"engines": { "node": "24.x" }
+
 }

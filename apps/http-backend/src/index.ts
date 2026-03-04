@@ -175,4 +175,4 @@ app.get("/getUser", middleware, async (req, res) => {
 
 })
 
-app.listen(3001);
+app.listen(process.env.PORT || 3001);

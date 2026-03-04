@@ -1,0 +1,28 @@
+services:
+  # HTTP Backend Service
+  - type: web
+    name: drawnote-http-api
+    env: node
+    buildCommand: npm install -g pnpm && pnpm install && pnpm run build --filter=http-backend...
+    startCommand: cd apps/http-backend && npm run start
+    plan: free
+    autoDeploy: true
+    envVars:
+      - key: DATABASE_URL
+        value: "postgresql://neondb_owner:npg_0IBtxD6vHqMR@ep-dark-block-a8hhm0d4-pooler.eastus2.azure.neon.tech/neondb?sslmode=require&channel_binding=require"
+      - key: JWT_SECRET
+        value: "123123"
+
+  # WebSocket Backend Service
+  - type: web
+    name: drawnote-ws-api
+    env: node
+    buildCommand: npm install -g pnpm && pnpm install && pnpm run build --filter=ws-backend...
+    startCommand: cd apps/ws-backend && npm run start
+    plan: free
+    autoDeploy: true
+    envVars:
+      - key: DATABASE_URL
+        value: "postgresql://neondb_owner:npg_0IBtxD6vHqMR@ep-dark-block-a8hhm0d4-pooler.eastus2.azure.neon.tech/neondb?sslmode=require&channel_binding=require"
+      - key: JWT_SECRET
+        value: "123123"

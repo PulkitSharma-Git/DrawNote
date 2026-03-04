@@ -29,6 +29,9 @@ importers:
       '@types/axios':
         specifier: ^0.14.4
         version: 0.14.4
+      '@types/react-icons':
+        specifier: ^3.0.0
+        version: 3.0.0(react@19.2.4)
       axios:
         specifier: ^1.7.9
         version: 1.13.5
@@ -45,7 +48,7 @@ importers:
         specifier: ^19.0.0
         version: 19.2.4(react@19.2.4)
       react-icons:
-        specifier: ^5.4.0
+        specifier: ^5.5.0
         version: 5.5.0(react@19.2.4)
     devDependencies:
       '@eslint/eslintrc':
@@ -624,6 +627,10 @@ packages:
     resolution: {integrity: sha512-jp2L/eY6fn+KgVVQAOqYItbF0VY/YApe5Mz2F0aykSO8gx31bYCZyvSeYxCHKvzHG5eZjc+zyaS5BrBWya2+kQ==}
     peerDependencies:
       '@types/react': ^19.2.0
+
+  '@types/react-icons@3.0.0':
+    resolution: {integrity: sha512-Vefs6LkLqF61vfV7AiAqls+vpR94q67gunhMueDznG+msAkrYgRxl7gYjNem/kZ+as2l2mNChmF1jRZzzQQtMg==}
+    deprecated: This is a stub types definition. react-icons provides its own type definitions, so you do not need this installed.
 
   '@types/react@19.2.14':
     resolution: {integrity: sha512-ilcTH/UniCkMdtexkoCN0bI7pMcJDvmQFPvuPvmEaYA/NSfFTAgdUSLAoVjaRJm7+6PvcM+q1zYOwS4wTYMF9w==}
@@ -3000,6 +3007,12 @@ snapshots:
   '@types/react-dom@19.2.3(@types/react@19.2.14)':
     dependencies:
       '@types/react': 19.2.14
+
+  '@types/react-icons@3.0.0(react@19.2.4)':
+    dependencies:
+      react-icons: 5.5.0(react@19.2.4)
+    transitivePeerDependencies:
+      - react
 
   '@types/react@19.2.14':
     dependencies:
