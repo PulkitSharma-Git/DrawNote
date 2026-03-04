@@ -3,7 +3,7 @@ services:
   - type: web
     name: drawnote-http-api
     env: node
-    buildCommand: npm install -g pnpm && pnpm install && cd packages/db && npx prisma generate && cd ../.. && pnpm run build --filter=http-backend...
+    buildCommand: npm install -g yarn && yarn install && cd packages/db && npx prisma generate && cd ../.. && npx turbo run build --filter=http-backend...
     startCommand: cd apps/http-backend && npm run start
     plan: free
     autoDeploy: true
@@ -17,7 +17,7 @@ services:
   - type: web
     name: drawnote-ws-api
     env: node
-    buildCommand: npm install -g pnpm && pnpm install && cd packages/db && npx prisma generate && cd ../.. && pnpm run build --filter=ws-backend...
+    buildCommand: npm install -g yarn && yarn install && cd packages/db && npx prisma generate && cd ../.. && npx turbo run build --filter=ws-backend...
     startCommand: cd apps/ws-backend && npm run start
     plan: free
     autoDeploy: true
