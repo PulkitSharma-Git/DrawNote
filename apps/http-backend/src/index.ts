@@ -113,7 +113,7 @@ app.post("/room", middleware, async (req, res) => {
             room = await prismaClient.room.create({
                 data: {
                     slug: parsedData.data.name,
-                    adminId: userId
+                    adminId: userId as string
                 }
             });
         }
