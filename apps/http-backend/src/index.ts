@@ -103,21 +103,28 @@ app.post("/room", middleware, async (req, res) => {
     const userId = req.userId;
 
     try {
-        const room = await prismaClient.room.create({
-            //@ts-ignore
-            data: {
-                slug: parsedData.data.name,
-                adminId: userId
+        let room = await prismaClient.room.findUnique({
+            where: {
+                slug: parsedData.data.name
             }
-        })
+        });
+
+        if (!room) {
+            room = await prismaClient.room.create({
+                data: {
+                    slug: parsedData.data.name,
+                    adminId: userId
+                }
+            });
+        }
 
         res.json({
             roomId: room.id
-        })
+        });
     } catch(e) {
-        res.status(411).json({
-            message: "Room already exists with this name"
-        })
+        res.status(500).json({
+            message: "Error processing room"
+        });
     }
 })
 
