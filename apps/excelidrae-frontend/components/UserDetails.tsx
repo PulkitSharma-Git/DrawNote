@@ -1,6 +1,5 @@
-import React from "react";
+"use client";
 import { IoPersonCircleOutline } from "react-icons/io5";
-import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 
 interface UserDetailsProps {
@@ -8,7 +7,7 @@ interface UserDetailsProps {
   name: string;
 }
 
-const UserDetails: React.FC<UserDetailsProps> = ({ email, name }) => {
+export default function UserDetails({ email, name }: UserDetailsProps) {
   const router = useRouter();
 
   const handleLogout = () => {
@@ -17,34 +16,25 @@ const UserDetails: React.FC<UserDetailsProps> = ({ email, name }) => {
   };
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: -20 }} // start above
-      animate={{ opacity: 1, y: 0 }}   // slide down into place
-      exit={{ opacity: 0, y: -20 }}
-      transition={{ type: "spring", stiffness: 120, damping: 15 }}
-      className="absolute right-0 mt-4 w-80 p-4 rounded-lg shadow-lg bg-white/10 backdrop-blur-md border border-white/20"
-    >
-      {/* Profile Info */}
-      <div className="flex items-center gap-4">
-        <IoPersonCircleOutline className="text-white" size={55} />
-        <div className="flex-1">
-          <h2 className="text-lg font-semibold text-white">{name}</h2>
-          <p className="text-sm text-gray-300">{email}</p>
+    <div className="w-72 rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 shadow-xl shadow-black/40 p-4 space-y-4">
+      {/* Profile info */}
+      <div className="flex items-center gap-3">
+        <IoPersonCircleOutline className="text-white/70 shrink-0" size={44} />
+        <div className="min-w-0">
+          <p className="text-sm font-semibold text-white truncate">{name}</p>
+          <p className="text-xs text-white/40 truncate">{email}</p>
         </div>
       </div>
 
-      {/* Logout Button with Gradient */}
-      <motion.button
-        whileHover={{ scale: 1.03 }}
-        whileTap={{ scale: 0.97 }}
-        transition={{ type: "spring", stiffness: 200, damping: 15 }}
-        onClick={handleLogout}
-        className="w-full mt-4 px-4 py-2 rounded-lg font-semibold text-white bg-gradient-to-r from-orange-400 via-red-500 to-blue-500 hover:opacity-90 shadow-md transition"
-      >
-        Logout
-      </motion.button>
-    </motion.div>
-  );
-};
+      <div className="h-px w-full bg-white/10" />
 
-export default UserDetails;
+      {/* Logout */}
+      <button
+        onClick={handleLogout}
+        className="w-full px-4 py-2 rounded-xl text-sm font-medium text-white/70 border border-white/10 bg-white/5 transition-all duration-200 hover:text-white hover:bg-white/10 hover:border-white/20"
+      >
+        Sign out
+      </button>
+    </div>
+  );
+}

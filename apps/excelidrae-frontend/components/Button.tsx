@@ -12,7 +12,7 @@ export function Button({ children, onClick, className }: ButtonProps) {
       onClick={onClick}
       className={`
         group relative inline-flex items-center justify-center
-        rounded-xl px-8 py-4
+        rounded-xl px-8 py-3
         bg-neutral-900 text-white font-medium
         border border-white/10
         shadow-[0_8px_30px_rgba(0,0,0,0.6)]

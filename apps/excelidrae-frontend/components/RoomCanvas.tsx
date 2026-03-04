@@ -1,35 +1,47 @@
-"use client"
+"use client";
 import { WS_URL } from "@/config";
 import { useEffect, useState } from "react";
 import { Canvas } from "./Canvas";
+import { FaSpinner } from "react-icons/fa";
 
+type Status = "connecting" | "connected" | "error";
 
-export function RoomCanvas({roomId}: {roomId: string}) {
-    const [socket, setSocket] = useState<WebSocket | null>(null);
+export function RoomCanvas({ roomId }: { roomId: string }) {
+  const [socket, setSocket] = useState<WebSocket | null>(null);
+  const [status, setStatus] = useState<Status>("connecting");
 
-    useEffect(() => {
-        const ws = new WebSocket(`${WS_URL}?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJiMTUwMTQxZC1mYTFiLTQ5M2ItYmJhMC1lNTE2ZjFjYmZjNGIiLCJpYXQiOjE3Mzk1NDE1MzJ9.Z4iu2o8kLdnAwwQZ1bacPJBPC0cvVryAL6B1rZAYGPQ`)
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) { setStatus("error"); return; }
 
-        ws.onopen = () => {
-            setSocket(ws);
+    const ws = new WebSocket(`${WS_URL}?token=${token}`);
 
-            ws.send(JSON.stringify({
-                type: "join_room",
-                roomId
-            }))
-        }
-        
-    }, [roomId])
+    ws.onopen = () => {
+      ws.send(JSON.stringify({ type: "join_room", roomId }));
+      setSocket(ws);
+      setStatus("connected");
+    };
 
-    if(!socket) {
-        return <div>
-            Connceting to server....
-        </div>
-    }
+    ws.onerror = () => setStatus("error");
+    ws.onclose = () => setStatus("error");
 
-    return <div> 
-        <Canvas roomId = {roomId} socket = {socket} />
+    return () => {
+      ws.close();
+    };
+  }, [roomId]);
+
+  if (status === "connecting") return (
+    <div className="flex flex-col items-center justify-center min-h-screen bg-[#0b0d12] gap-3">
+      <FaSpinner className="text-white/30 text-2xl animate-spin" />
+      <p className="text-sm text-white/30">Connecting to room…</p>
     </div>
-    //Put canvas on the screen with a reference on it and useEffect with canvasRef in dependency array
+  );
 
+  if (status === "error") return (
+    <div className="flex flex-col items-center justify-center min-h-screen bg-[#0b0d12] gap-3">
+      <p className="text-sm text-red-400">Failed to connect. Please refresh or rejoin the room.</p>
+    </div>
+  );
+
+  return <Canvas roomId={roomId} socket={socket!} />;
 }

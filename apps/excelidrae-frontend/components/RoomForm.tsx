@@ -7,110 +7,101 @@ import { Button } from "@/components/Button";
 import { Input1 } from "@/components/Input1";
 import { FaSpinner } from "react-icons/fa";
 
+type Tab = "create" | "join";
+
 export function RoomForm() {
   const roomRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
+  const [tab, setTab] = useState<Tab>("create");
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
-  async function createRoomHandler() {
-    if (!roomRef.current || !roomRef.current.value.trim()) {
-      alert("Room name cannot be empty");
-      return;
+  async function handleSubmit() {
+    const value = roomRef.current?.value.trim();
+    if (!value) { 
+      setError(tab === "create" ? "Room name cannot be empty." : "Room ID cannot be empty."); 
+      return; 
     }
+    setError("");
 
     const token = localStorage.getItem("token");
     setLoading(true);
 
     try {
-      console.log(token);
-      console.log(roomRef.current.value);
+      if (tab === "create") {
+        const { data } = await axios.post(
+          `${HTTP_BACKEND}/room`,
+          { name: value },
+          { headers: { authorization: token } }
+        );
+        router.push(`/canvas/${data.roomId}`);
+      } else {
+        const numericId = Number(value);
+        if (isNaN(numericId)) {
+          setError("Room ID must be a valid number.");
+          setLoading(false);
+          return;
+        }
 
-      const response = await axios.post(
-        `${HTTP_BACKEND}/room`,
-        { name: roomRef.current.value },
-        { headers: { authorization: token } }
-      );
-
-      const roomId = response.data.roomId;
-      console.log(roomId);
-      router.push(`/canvas/${roomId}`);
-    } catch (e) {
-      console.log("Failed to create room: ", e);
+        const { data } = await axios.get(`${HTTP_BACKEND}/room/${numericId}`);
+        if (!data.room) {
+          setError("Room not found.");
+          setLoading(false);
+          return;
+        }
+        router.push(`/canvas/${data.room.id}`);
+      }
+    } catch {
+      setError(tab === "create" ? "Failed to create room." : "Error checking room.");
+      setLoading(false);
     }
-    setTimeout(() => setLoading(false), 1000);
-
   }
 
   return (
-  <div className="
-    relative max-w-md mx-auto
-    rounded-xl
-    bg-white/8 backdrop-blur-xl
-    border border-white/15
-    shadow-md
-  ">
-    <div className="flex flex-col gap-5 p-7">
+    <div className="w-full max-w-md rounded-2xl bg-white/[0.04] backdrop-blur-xl border border-white/10 shadow-xl shadow-black/30 p-8 space-y-6">
+      {/* Tabs */}
+      <div className="flex rounded-xl bg-white/[0.04] border border-white/10 p-1">
+        {(["create", "join"] as Tab[]).map((t) => (
+          <button
+            key={t}
+            onClick={() => { setTab(t); setError(""); if (roomRef.current) roomRef.current.value = ""; }}
+            className={`flex-1 py-2 text-sm font-medium rounded-lg transition-all duration-200
+              ${tab === t ? "bg-white/10 text-white shadow-sm" : "text-white/40 hover:text-white/70"}`}
+          >
+            {t === "create" ? "Create Room" : "Join Room"}
+          </button>
+        ))}
+      </div>
 
-      {/* Heading */}
-      <div className="flex flex-col gap-1 text-center">
-        <h2 className="
-          text-xl font-bold tracking-tight
-          text-transparent bg-clip-text
-          bg-gradient-to-r
-          from-orange-400 via-red-500 to-blue-500
-        ">
-          Join or Create a Room
+      {/* Header */}
+      <div className="space-y-1 text-center">
+        <h2 className="text-xl font-semibold text-white tracking-tight">
+          {tab === "create" ? "Create a new room" : "Join an existing room"}
         </h2>
-        <p className="text-sm text-white/60">
-          Create a shared canvas and start collaborating
+        <p className="text-sm text-white/40">
+          {tab === "create"
+            ? "Start a shared canvas and invite your team"
+            : "Enter the room ID to jump straight in"}
         </p>
       </div>
 
       {/* Input */}
-      <Input1
-        ref={roomRef}
-        type="text"
-        placeholder="Room name"
-        className="
-          w-full
-          rounded-md
-          bg-white/5
-          border border-white/20
-          px-3 py-2
-          text-white
-          placeholder-white/40
-          focus:border-orange-400/50
-          focus:ring-0
-        "
-      />
+      <div className="space-y-2">
+        <Input1
+          ref={roomRef}
+          type="text"
+          placeholder={tab === "create" ? "Room name" : "Room ID"}
+          disabled={loading}
+        />
+        {error && <p className="text-xs text-red-400">{error}</p>}
+      </div>
 
-      {/* Button */}
-      <Button
-        onClick={createRoomHandler}
-        className="
-          w-full rounded-md
-          bg-gradient-to-r
-          from-orange-400 via-red-500 to-blue-500
-          text-white
-          font-semibold
-          text-sm
-          py-2.5
-          hover:opacity-90
-          transition
-        "
-      >
-        {loading ? (
-          <div className="flex items-center justify-center gap-2">
-            <FaSpinner className="animate-spin text-base" />
-            Creating…
-          </div>
-        ) : (
-          "Create Room"
-        )}
+      {/* CTA */}
+      <Button onClick={handleSubmit} className="w-full h-11 disabled:opacity-60">
+        {loading
+          ? <FaSpinner className="animate-spin" />
+          : tab === "create" ? "Create Room →" : "Join Room →"}
       </Button>
-
     </div>
-  </div>
-);
-
+  );
 }

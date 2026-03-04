@@ -103,20 +103,12 @@ app.post("/room", middleware, async (req, res) => {
     const userId = req.userId;
 
     try {
-        let room = await prismaClient.room.findUnique({
-            where: {
-                slug: parsedData.data.name
+        const room = await prismaClient.room.create({
+            data: {
+                slug: parsedData.data.name,
+                adminId: userId as string
             }
         });
-
-        if (!room) {
-            room = await prismaClient.room.create({
-                data: {
-                    slug: parsedData.data.name,
-                    adminId: userId as string
-                }
-            });
-        }
 
         res.json({
             roomId: room.id
@@ -154,17 +146,19 @@ app.get("/chats/:roomId", async (req, res) => {
     
 })
 
-app.get("/room/:slug", async (req, res) => {
-    const slug = req.params.slug;
-    const room = await prismaClient.room.findFirst({
-        where: {
-            slug
-        }
+app.get("/room/:roomId", async (req, res) => {
+    const roomId = Number(req.params.roomId);
+    
+    if (isNaN(roomId)) {
+        res.status(400).json({ message: "Invalid room ID" });
+        return;
+    }
+
+    const room = await prismaClient.room.findUnique({
+        where: { id: roomId }
     });
 
-    res.json({
-        room
-    })
+    res.json({ room });
 })
 
 app.get("/getUser", middleware, async (req, res) => {
