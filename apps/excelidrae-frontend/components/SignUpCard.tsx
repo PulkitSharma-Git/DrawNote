@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation";
 import { Input1 } from "@/components/Input1";
 import { PasswordInput } from "@/components/PasswordInput";
 import { Button } from "@/components/Button";
-import { SiSpinrilla } from "react-icons/si";
+import { FaSpinner } from "react-icons/fa";
 
 export function SignUpCard() {
   const router = useRouter();
@@ -98,7 +98,7 @@ export function SignUpCard() {
     "
   >
     {loading ? (
-      <SiSpinrilla className="animate-spin text-xl" />
+      <FaSpinner className="animate-spin text-xl" />
     ) : (
       "Sign Up"
     )}

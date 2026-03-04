@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
-import { SiSpinrilla } from "react-icons/si";
+import { FaSpinner } from "react-icons/fa";
 
 import PageLayout from "@/components/PageLayout";
 import { RoomForm } from "@/components/RoomForm";
@@ -62,7 +62,7 @@ export default function JoinPage() {
 
           {loading && (
             <div className="flex justify-center py-10">
-              <SiSpinrilla className="text-gray-50 text-3xl animate-spin" />
+              <FaSpinner className="text-gray-50 text-3xl animate-spin" />
             </div>
           )}
 

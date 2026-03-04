@@ -5,7 +5,7 @@ import axios from "axios";
 import { HTTP_BACKEND } from "@/config";
 import { Button } from "@/components/Button";
 import { Input1 } from "@/components/Input1";
-import { SiSpinrilla } from "react-icons/si";
+import { FaSpinner } from "react-icons/fa";
 
 export function RoomForm() {
   const roomRef = useRef<HTMLInputElement>(null);
@@ -101,7 +101,7 @@ export function RoomForm() {
       >
         {loading ? (
           <div className="flex items-center justify-center gap-2">
-            <SiSpinrilla className="animate-spin text-base" />
+            <FaSpinner className="animate-spin text-base" />
             Creating…
           </div>
         ) : (

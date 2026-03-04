@@ -8,7 +8,7 @@ import { Input1 } from "@/components/Input1";
 import { Button } from "@/components/Button";
 import { SignInLayout } from "@/components/SignInLayout";
 import { SignInCard } from "@/components/SignInCard";
-import { SiSpinrilla } from "react-icons/si";
+import { FaSpinner } from "react-icons/fa";
 
 export function SignInPage() {
   const router = useRouter();
@@ -60,7 +60,7 @@ export function SignInPage() {
             className="h-12 w-full max-w-[260px]"
           >
             {loading ? (
-              <SiSpinrilla className="animate-spin text-xl" />
+              <FaSpinner className="animate-spin text-xl" />
             ) : (
               "Sign In"
             )}
