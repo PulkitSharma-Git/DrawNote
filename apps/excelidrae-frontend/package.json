@@ -9,7 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@repo/ui": "workspace:*",
+    "@repo/ui": "*",
     "@types/axios": "^0.14.4",
     "@types/react-icons": "^3.0.0",
     "axios": "^1.7.9",
