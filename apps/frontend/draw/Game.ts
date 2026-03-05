@@ -60,6 +60,11 @@ export class Game {
     private currentPencilStroke: { type: "pencil"; color: string; points: { x: number; y: number }[] } | null = null;
     socket: WebSocket;
 
+    private scale = 1;
+    private offsetX = 0;
+    private offsetY = 0;
+    public onZoomChange?: (zoom: number) => void;
+
     constructor(canvas: HTMLCanvasElement, roomId: string, socket: WebSocket) {
         this.canvas = canvas;
         this.roomId = roomId;
@@ -78,7 +83,28 @@ export class Game {
         this.canvas.removeEventListener("mouseup", this.mouseUpHandler);
 
         this.canvas.removeEventListener("mousemove", this.mouseMoveHandler);
-         
+        this.canvas.removeEventListener("wheel", this.wheelHandler);
+    }
+
+    setZoom(scale: number) {
+        // Zoom to center
+        const oldScale = this.scale;
+        const centerX = this.canvas.width / 2;
+        const centerY = this.canvas.height / 2;
+
+        this.offsetX = centerX - (centerX - this.offsetX) * (scale / oldScale);
+        this.offsetY = centerY - (centerY - this.offsetY) * (scale / oldScale);
+        this.scale = scale;
+        
+        if (this.onZoomChange) this.onZoomChange(this.scale);
+        this.clearCanvas();
+    }
+
+    getTransformedPoint(x: number, y: number) {
+        return {
+            x: (x - this.offsetX) / this.scale,
+            y: (y - this.offsetY) / this.scale
+        };
     }
 
     setTool(tool: "circle" | "pencil" | "rect" | "line" | "text" | "diamond" | "move") {
@@ -114,11 +140,16 @@ export class Game {
     }
 
     clearCanvas() { //Clears and Re-Renders whole canvas
+        this.ctx.setTransform(1, 0, 0, 1, 0, 0);
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         this.ctx.fillStyle = "rgba(0, 0, 0)"
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
-        this.existingShapes.map((shape) => {
+        this.ctx.save();
+        this.ctx.translate(this.offsetX, this.offsetY);
+        this.ctx.scale(this.scale, this.scale);
+
+        this.existingShapes.forEach((shape) => {
             const color = colorCoder(shape.color, 1);
 
         if (shape.type === "rect") { 
@@ -165,15 +196,25 @@ export class Game {
             this.ctx.lineTo(shape.centerX, shape.centerY - shape.height/2); // Back to top point
 
             this.ctx.stroke();
+            this.ctx.stroke();
             this.ctx.closePath();
         }
         })
+        this.ctx.restore();
     }
 
     mouseDownHandler = (e: MouseEvent) => {
         this.clicked = true
-        this.startX = e.clientX
-        this.startY = e.clientY
+        
+        if (this.selected === "move") {
+            this.startX = e.clientX;
+            this.startY = e.clientY;
+            return;
+        }
+
+        const point = this.getTransformedPoint(e.clientX, e.clientY);
+        this.startX = point.x;
+        this.startY = point.y;
 
         if(this.selected === "pencil") { //Since clicked is also true means user is drawing
             this.currentPencilStroke = { type: "pencil",color: this.selectedColor, points: [{ x: this.startX, y: this.startY }] }; //Push start point of drawing in array
@@ -182,8 +223,11 @@ export class Game {
     }
     mouseUpHandler = (e: MouseEvent) => {
         this.clicked = false;
-        const width = e.clientX - this.startX;
-        const height = e.clientY - this.startY;
+        if (this.selected === "move") return;
+
+        const point = this.getTransformedPoint(e.clientX, e.clientY);
+        const width = point.x - this.startX;
+        const height = point.y - this.startY;
         
         const selected  = this.selected;
         let shape: Shape|null = null;
@@ -234,9 +278,14 @@ export class Game {
             const input = document.createElement("input");
             input.type = "text";
             input.style.position = "absolute";
-            input.style.left = `${this.startX}px`;
-            input.style.top = `${this.startY}px`;
-            input.style.fontSize = "25px";
+            // Map canvas coordinates to screen for the input box
+            const screenX = this.startX * this.scale + this.offsetX;
+            const screenY = this.startY * this.scale + this.offsetY;
+            input.style.left = `${screenX}px`;
+            input.style.top = `${screenY}px`;
+            // Keep font size related to scale so text input looks exact size
+            const fontSize = 25 * this.scale;
+            input.style.fontSize = `${fontSize}px`;
             input.style.background = "transparent"
             input.style.color = colorCoder(this.selectedColor, 1); 
             input.style.caretColor = colorCoder(this.selectedColor, 1);
@@ -311,9 +360,24 @@ export class Game {
     }
     mouseMoveHandler = (e: MouseEvent) => {
         if (this.clicked) {
-            const width = e.clientX - this.startX;
-            const height = e.clientY - this.startY;
+            if (this.selected === "move") {
+                this.offsetX += e.clientX - this.startX;
+                this.offsetY += e.clientY - this.startY;
+                this.startX = e.clientX;
+                this.startY = e.clientY;
+                this.clearCanvas();
+                return;
+            }
+
+            const point = this.getTransformedPoint(e.clientX, e.clientY);
+            const width = point.x - this.startX;
+            const height = point.y - this.startY;
+            
             this.clearCanvas();
+            this.ctx.save();
+            this.ctx.translate(this.offsetX, this.offsetY);
+            this.ctx.scale(this.scale, this.scale);
+            
             this.ctx.strokeStyle = colorCoder(this.selectedColor, 1);
             const selected = this.selected;
 
@@ -354,25 +418,45 @@ export class Game {
                 this.ctx.closePath();
 
             } else if(selected === "pencil") {
-                this.currentPencilStroke?.points.push({ x: e.clientX, y: e.clientY });
+                this.currentPencilStroke?.points.push({ x: point.x, y: point.y });
             
-                this.clearCanvas(); // Clears and re-renders
                 this.ctx.beginPath();
-                this.ctx.strokeStyle = colorCoder(this.selectedColor, 1);
-                this.currentPencilStroke?.points.forEach((point, index) => {
-                    if (index === 0) this.ctx.moveTo(point.x, point.y);
-                    else this.ctx.lineTo(point.x, point.y);
+                this.currentPencilStroke?.points.forEach((p, index) => {
+                    if (index === 0) this.ctx.moveTo(p.x, p.y);
+                    else this.ctx.lineTo(p.x, p.y);
                 });
                 this.ctx.stroke();
             } 
+            
+            this.ctx.restore();
         }
 
     }
+    wheelHandler = (e: WheelEvent) => {
+        e.preventDefault();
+
+        if (e.ctrlKey || e.metaKey) {
+            // Zooming
+            const zoomSensitivity = 0.002;
+            const deltaScale = e.deltaY * zoomSensitivity;
+            const newScale = Math.min(Math.max(0.1, this.scale - deltaScale), 5); // Clamped 10% to 500%
+            
+            this.setZoom(newScale);
+        } else {
+            // Panning
+            this.offsetX -= e.deltaX;
+            this.offsetY -= e.deltaY;
+            this.clearCanvas();
+        }
+    }
+
     initMouseHandlers() {
         this.canvas.addEventListener("mousedown", this.mouseDownHandler);
 
         this.canvas.addEventListener("mouseup", this.mouseUpHandler);
 
         this.canvas.addEventListener("mousemove", this.mouseMoveHandler);
+
+        this.canvas.addEventListener("wheel", this.wheelHandler, { passive: false });
     }
 }

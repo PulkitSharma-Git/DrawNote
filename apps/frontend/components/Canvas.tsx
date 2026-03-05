@@ -29,11 +29,13 @@ export function Canvas({ socket, roomId }: { socket: WebSocket; roomId: string }
   const [game, setGame] = useState<Game>();
   const [selected, setSelected] = useState<Tool>("circle");
   const [selectColor, setselectColor] = useState<Color>("white");
+  const [zoom, setZoom] = useState(1);
 
   // Init game
   useEffect(() => {
     if (!canvasRef.current) return;
     const g = new Game(canvasRef.current, roomId, socket);
+    g.onZoomChange = (z) => setZoom(z);
     setGame(g);
     return () => g.destroy();
   }, [roomId, socket]);
@@ -74,6 +76,32 @@ export function Canvas({ socket, roomId }: { socket: WebSocket; roomId: string }
       </Bar>
 
       <Palette onColorSelect={(color) => setselectColor(color as Color)} />
+
+      {/* Zoom UI */}
+      <div className="absolute bottom-4 left-4 z-50 flex items-center gap-1 px-2 py-1.5 rounded-2xl bg-[#0b0d12]/80 backdrop-blur-xl border border-white/10 shadow-xl shadow-black/40">
+        <button 
+          className="flex items-center justify-center w-8 h-8 rounded-xl transition-all duration-200 text-white/40 hover:text-white/80 hover:bg-white/10 font-bold"
+          onClick={() => game?.setZoom(Math.max(0.1, zoom - 0.1))}
+          title="Zoom Out"
+        >
+          -
+        </button>
+        <div 
+           className="px-1 text-sm select-none cursor-pointer text-white/60 hover:text-white transition-colors w-12 text-center font-medium font-mono"
+           onClick={() => game?.setZoom(1)}
+           title="Reset Zoom"
+        >
+          {Math.round(zoom * 100)}%
+        </div>
+        <button 
+          className="flex items-center justify-center w-8 h-8 rounded-xl transition-all duration-200 text-white/40 hover:text-white/80 hover:bg-white/10 font-bold"
+          onClick={() => game?.setZoom(Math.min(5, zoom + 0.1))}
+          title="Zoom In"
+        >
+          +
+        </button>
+      </div>
+
     </div>
   );
 }
