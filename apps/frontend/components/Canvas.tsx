@@ -10,18 +10,21 @@ import { GoDash } from "react-icons/go";
 import { IoText } from "react-icons/io5";
 import { BiMove } from "react-icons/bi";
 import { BsDiamond } from "react-icons/bs";
+import { MousePointer2, Eraser } from "lucide-react";
 
-export type Tool = "circle" | "rect" | "pencil" | "line" | "text" | "move" | "diamond";
+export type Tool = "circle" | "rect" | "pencil" | "line" | "text" | "move" | "diamond" | "select" | "eraser";
 export type Color = "red-500" | "green-500" | "blue-500" | "white";
 
 const TOOLS: { id: Tool; icon: React.ReactNode; label: string }[] = [
-  { id: "rect",    icon: <FaRegSquare className="size-5" />,    label: "Rectangle" },
-  { id: "circle",  icon: <FaRegCircle className="size-5" />,    label: "Circle"    },
-  { id: "diamond", icon: <BsDiamond className="size-5" />,      label: "Diamond"   },
-  { id: "pencil",  icon: <GiStraightPipe className="size-5" />, label: "Pencil"    },
-  { id: "line",    icon: <GoDash className="size-5" />,         label: "Line"      },
-  { id: "text",    icon: <IoText className="size-5" />,         label: "Text"      },
-  { id: "move",    icon: <BiMove className="size-5" />,         label: "Move"      },
+  { id: "select",  icon: <MousePointer2 className="size-5" />, label: "Select"    },
+  { id: "rect",    icon: <FaRegSquare className="size-5" />,     label: "Rectangle" },
+  { id: "circle",  icon: <FaRegCircle className="size-5" />,     label: "Circle"    },
+  { id: "diamond", icon: <BsDiamond className="size-5" />,       label: "Diamond"   },
+  { id: "pencil",  icon: <GiStraightPipe className="size-5" />,  label: "Pencil"    },
+  { id: "line",    icon: <GoDash className="size-5" />,          label: "Line"      },
+  { id: "text",    icon: <IoText className="size-5" />,          label: "Text"      },
+  { id: "move",    icon: <BiMove className="size-5" />,          label: "Pan"       },
+  { id: "eraser",  icon: <Eraser className="size-5" />,        label: "Eraser"    },
 ];
 
 export function Canvas({ socket, roomId }: { socket: WebSocket; roomId: string }) {
