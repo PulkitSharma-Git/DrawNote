@@ -18,14 +18,35 @@ export function SignUpCard() {
 
   async function onClickHandler() {
     if (!nameRef.current || !emailRef.current || !passwordRef.current) return;
+
+    const email = emailRef.current.value;
+    const password = passwordRef.current.value;
+
     setLoading(true);
     try {
+      // Step 1: Create the account
       await axios.post(`${HTTP_BACKEND}/signup`, {
         name: nameRef.current.value,
-        username: emailRef.current.value,
-        password: passwordRef.current.value,
+        username: email,
+        password,
       });
-      router.push("/signin");
+
+      // Step 2: Immediately sign in to get a token.
+      // Previously the app redirected to /signin and made the user sign in manually —
+      // this was an unnecessary extra step. We already have the credentials here, so
+      // we sign in right away for a smoother onboarding experience.
+      const signinRes = await axios.post(`${HTTP_BACKEND}/signin`, {
+        username: email,
+        password,
+      });
+
+      // Step 3: Persist the token so all subsequent API calls and WS connections
+      // can authenticate. This token is read from localStorage by RoomForm, Navbar,
+      // RoomCanvas, and the join page.
+      localStorage.setItem("token", signinRes.data.token);
+
+      // Step 4: Send the user directly to the dashboard
+      router.push("/join");
     } catch (error) {
       const err = error as AxiosError;
       alert("Signup failed: " + ((err.response?.data as { message: string })?.message || "Unknown error"));

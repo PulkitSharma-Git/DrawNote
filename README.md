@@ -1,6 +1,37 @@
 # DrawNote
 <img width="161" alt="Screenshot 2025-02-21 at 12 09 56 PM" src="https://github.com/user-attachments/assets/8ae2f951-3f72-47f1-a002-a7e61dcd2ee0" />
 
+Issues:
+- Eraser works locally doesnt delete from db
+- text feature doesnt give blinker
+- text still shifts a bit on clicking away
+- cluttered hero section
+
+
+features to add:
+- people in room
+- text option in middle of the shape
+- sharing room link
+- sharing canvas a image 
+- quick join to a room without sign in
+- smoother shapes
+- thickness of shapes
+- writing like font 
+- different colors for canvas
+- more colors for shapes
+- different kinds of shapes ( dotted, dashed, solid )
+- fill color inside shapes
+- better authentication with providers
+- mobile/ tab support (stylus and touch)
+
+miscellaneous:
+- refactor Game.ts
+- abstraction of shapes
+- organising components according to features or pages
+- better readme
+- flow diagarm for readme
+
+
 
 
 ## 🎥 Demo & Screenshots

@@ -18,17 +18,27 @@ export function RoomForm() {
 
   async function handleSubmit() {
     const value = roomRef.current?.value.trim();
-    if (!value) { 
-      setError(tab === "create" ? "Room name cannot be empty." : "Room ID cannot be empty."); 
-      return; 
+    if (!value) {
+      setError(tab === "create" ? "Room name cannot be empty." : "Room ID cannot be empty.");
+      return;
     }
     setError("");
 
+    // Guard: localStorage.getItem returns null if the user isn't logged in.
+    // Without this check, axios sends the literal string "null" as the token,
+    // which causes jwt.verify to throw "jwt malformed" → "Failed to create room".
     const token = localStorage.getItem("token");
+    if (!token) {
+      router.replace("/signin");
+      return;
+    }
+
     setLoading(true);
 
     try {
       if (tab === "create") {
+        // POST /room requires a valid JWT in the Authorization header.
+        // The backend middleware will reject the request with 401 if it's missing or invalid.
         const { data } = await axios.post(
           `${HTTP_BACKEND}/room`,
           { name: value },
@@ -36,6 +46,7 @@ export function RoomForm() {
         );
         router.push(`/canvas/${data.roomId}`);
       } else {
+        // Join flow: validate the room ID is a number before hitting the API
         const numericId = Number(value);
         if (isNaN(numericId)) {
           setError("Room ID must be a valid number.");
