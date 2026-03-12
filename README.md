@@ -1,4 +1,7 @@
-# 🎨 DrawNote
+<p align="center">
+  <img width="412" height="139" alt="Screenshot" src="https://github.com/user-attachments/assets/002c5551-da16-4c91-808b-c0944d41944b" />
+</p>
+
 
 <p align="center">
 
