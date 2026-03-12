@@ -38,31 +38,21 @@ https://drawnote1.vercel.app
 ---
 
 # 🎥 Demo
-
-Drag and drop your demo video here.
-
-```
-<Drop demo video here>
-```
+https://github.com/user-attachments/assets/84197114-2959-44b3-80e2-1e287d817792
 
 ---
 
 # 📸 Screenshots
 
-Drag and drop screenshots below.
+<img width="1440" height="810" alt="Screenshot 2026-03-12 at 6 03 41 PM" src="https://github.com/user-attachments/assets/ea210f2c-0d70-480a-9f96-df78ee3d9b56" />
 
-Example structure:
+<img width="1439" height="816" alt="Screenshot 2026-03-12 at 7 38 08 PM" src="https://github.com/user-attachments/assets/4788051a-0f7d-4ffb-bfed-3d457e1c2dc0" />
 
-```
-assets/screenshot1.png
-assets/screenshot2.png
-```
+<img width="1440" height="805" alt="Screenshot 2026-03-12 at 6 06 04 PM" src="https://github.com/user-attachments/assets/ba34cbcb-0c16-42af-a76a-9d122746c20c" />
 
-Example usage:
 
-```markdown
-![Canvas](assets/screenshot1.png)
-```
+<img width="1440" height="816" alt="Screenshot 2026-03-12 at 7 37 24 PM" src="https://github.com/user-attachments/assets/d67ce923-fcb0-4e41-be7c-8e4738743875" />
+
 
 ---
 
