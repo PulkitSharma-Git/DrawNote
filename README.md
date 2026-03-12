@@ -1,46 +1,67 @@
 # 🎨 DrawNote
 
-![Next.js](https://img.shields.io/badge/Next.js-15-black)
-![Node.js](https://img.shields.io/badge/Node.js-runtime-green)
-![WebSockets](https://img.shields.io/badge/WebSockets-real--time-blue)
-![PostgreSQL](https://img.shields.io/badge/PostgreSQL-database-blue)
-![Prisma](https://img.shields.io/badge/Prisma-ORM-2D3748)
-![Turborepo](https://img.shields.io/badge/Turborepo-monorepo-orange)
-![TypeScript](https://img.shields.io/badge/TypeScript-type--safe-blue)
-![License](https://img.shields.io/badge/License-None-lightgrey)
+<p align="center">
 
-**Brainstorm. Collaborate. Create.**
+<img src="https://img.shields.io/badge/Next.js-000000?logo=nextdotjs&logoColor=white">
+<img src="https://img.shields.io/badge/React-20232A?logo=react&logoColor=61DAFB">
+<img src="https://img.shields.io/badge/TypeScript-3178C6?logo=typescript&logoColor=white">
+<img src="https://img.shields.io/badge/Node.js-339933?logo=node.js&logoColor=white">
+<img src="https://img.shields.io/badge/WebSockets-real--time-010101?logo=socketdotio">
+<img src="https://img.shields.io/badge/PostgreSQL-4169E1?logo=postgresql&logoColor=white">
+<img src="https://img.shields.io/badge/Prisma-2D3748?logo=prisma">
+<img src="https://img.shields.io/badge/Turborepo-monorepo-EF4444?logo=turborepo">
 
-DrawNote is a **high-performance real-time collaborative whiteboard** designed for seamless brainstorming and visual collaboration.
+</p>
 
-It enables multiple users to **draw together in real-time**, powered by WebSockets and a scalable full-stack architecture.
+<p align="center">
+<b>Brainstorm. Collaborate. Create.</b>
+</p>
+
+DrawNote is a **real-time collaborative whiteboard** built for seamless brainstorming and visual collaboration.
+
+Users can **draw together on an infinite canvas**, with instant synchronization powered by WebSockets and persistent event storage.
 
 🌐 **Live Demo**  
 https://drawnote1.vercel.app
 
 ---
 
+# ⚡ Tech Highlights
+
+• Real-time collaboration using **WebSockets**  
+• **Event-driven architecture** with persistent drawing events  
+• **Infinite canvas rendering** using HTML Canvas API  
+• **Room-based collaboration** with shareable links  
+• **Monorepo architecture** powered by Turborepo  
+• **Canvas state reconstruction** via event replay
+
+---
+
 # 🎥 Demo
 
-> Drag and drop your demo video below.
+Drag and drop your demo video here.
 
-<!-- DROP DEMO VIDEO HERE -->
+```
+<Drop demo video here>
+```
 
 ---
 
 # 📸 Screenshots
 
-> Drag and drop screenshots here.
+Drag and drop screenshots below.
+
+Example structure:
 
 ```
 assets/screenshot1.png
 assets/screenshot2.png
 ```
 
-Example:
+Example usage:
 
-```md
-![Whiteboard](assets/screenshot1.png)
+```markdown
+![Canvas](assets/screenshot1.png)
 ```
 
 ---
@@ -48,40 +69,38 @@ Example:
 # ✨ Features
 
 ### 🎨 Real-Time Collaboration
-Multiple users can draw on the same canvas simultaneously with instant synchronization.
-
-### 🖌 Fluid Drawing Experience
-Powered by the **HTML Canvas API** for smooth, low-latency rendering.
-
-### 🏠 Room-Based Collaboration
-Users can create and join rooms for organized brainstorming sessions.
-
-### 🔒 Secure Authentication
-JWT-based authentication system for user sessions.
-
-### 📐 Shape Tools
-Supports multiple drawing tools:
-
-- Freehand drawing
-- Rectangle
-- Circle
-- Line
-- Eraser
+Multiple users can draw simultaneously with instant synchronization.
 
 ### 🌌 Infinite Canvas
-The workspace expands dynamically allowing unlimited drawing area.
+Users can draw without boundaries using a dynamically expanding canvas.
+
+### 🏠 Persistent Room System
+Rooms have permanent links and stored drawing history.
+
+### 🧠 Event Persistence
+All drawing events are stored in the database and replayed when new users join.
+
+### 🖌 Drawing Tools
+
+- Freehand drawing
+- Lines
+- Rectangles
+- Circles
+- Eraser
 
 ### 👥 Multi-User Synchronization
-Canvas updates are broadcast to all connected clients in real-time.
+Drawing updates are broadcast instantly to all users in the room.
 
-### 📱 Responsive Design
-Works across desktop and mobile browsers.
+### 🔒 Secure Authentication
+JWT-based authentication protects room access.
 
 ---
 
 # 🏗 System Architecture
 
-DrawNote separates **HTTP APIs and real-time communication** to improve scalability and performance.
+DrawNote uses an **event-driven architecture** where drawing events are transmitted through WebSockets and persisted in the database.
+
+This allows the application to **reconstruct the canvas state by replaying events** when a new user joins a room.
 
 ```mermaid
 flowchart LR
@@ -96,7 +115,7 @@ Client -->|WebSocket Connection| WS[WebSocket Server]
 
 WS -->|Broadcast Drawing Events| Client
 
-WS --> DB
+WS -->|Persist Drawing Event| DB
 
 DB --> Prisma[Prisma ORM]
 
@@ -104,46 +123,60 @@ Prisma --> HTTP
 Prisma --> WS
 ```
 
-### Components
-
-**Frontend**
-- Next.js application
-- Canvas-based rendering engine
-- Maintains WebSocket connection
-
-**HTTP Backend**
-- Handles authentication
-- Room creation
-- User management
-
-**WebSocket Server**
-- Broadcasts drawing events
-- Synchronizes canvas state across users
-
-**Database**
-- Stores users
-- Room metadata
-- Drawing information
-
 ---
 
-# ⚡ Real-Time Event Flow
+# ⚡ Real-Time Drawing Flow
 
 ```mermaid
 sequenceDiagram
 
 participant A as User A
 participant WS as WebSocket Server
+participant DB as PostgreSQL
 participant B as User B
 
 A->>WS: Send drawing event
-WS->>B: Broadcast drawing event
-B->>B: Render on canvas
+WS->>DB: Store event
+WS->>B: Broadcast event
+B->>B: Render stroke on canvas
 ```
+
+This ensures:
+
+• instant drawing updates  
+• persistent event history  
+• consistent canvas state across users
 
 ---
 
-# 🚀 Scalable Architecture
+# 🔄 Room Join & Canvas Reconstruction
+
+When a user joins a room, the stored drawing events are fetched and replayed.
+
+```mermaid
+sequenceDiagram
+
+participant User
+participant HTTP
+participant DB
+participant Canvas
+
+User->>HTTP: Join room
+HTTP->>DB: Fetch drawing events
+DB->>HTTP: Return events
+HTTP->>User: Send event history
+User->>Canvas: Replay drawing events
+```
+
+This allows:
+
+- persistent whiteboards
+- consistent canvas state
+- reliable collaboration
+
+---
+
+# 📊 Distributed Scaling Architecture
 
 To support high concurrency, DrawNote can scale horizontally.
 
@@ -174,56 +207,44 @@ Redis --> WS2
 
 ### Scaling Strategy
 
-- **Load balancers** distribute incoming traffic
-- **Multiple WebSocket servers** enable horizontal scaling
-- **Redis Pub/Sub** synchronizes events across servers
+• Load balancers distribute traffic  
+• Multiple WebSocket servers handle concurrent connections  
+• Redis Pub/Sub synchronizes events across servers  
 
-This architecture can support **thousands of concurrent users**.
-
----
-
-# 🧠 Engineering Challenges
-
-### 1️⃣ Real-Time Synchronization
-Ensuring multiple users see identical canvas states in real time required an event-driven WebSocket architecture.
-
-### 2️⃣ Efficient Canvas Rendering
-Instead of syncing entire canvas states, only **drawing events** are transmitted to minimize bandwidth usage.
-
-### 3️⃣ Multi-User Conflict Handling
-Simultaneous drawing operations are broadcast and rendered sequentially to maintain consistency.
-
-### 4️⃣ Monorepo Architecture
-The project uses **Turborepo + Yarn Workspaces** to manage shared code and services across frontend and backend.
+This architecture enables DrawNote to scale to **thousands of concurrent users**.
 
 ---
 
 # 🛠 Tech Stack
 
-## Monorepo Infrastructure
-- **Turborepo**
-- **Yarn Workspaces**
-
 ## Frontend
-- **Next.js 15**
+
+- **Next.js**
 - **React**
 - **Tailwind CSS**
 - **Framer Motion**
-- **Lucide React**
-- **Canvas API**
+- **HTML Canvas API**
 
 ## Backend
+
 - **Node.js**
 - **Express.js**
-- **WebSockets (`ws`)**
+- **WebSockets (ws)**
 - **JWT Authentication**
-- **Zod validation**
+- **Zod Validation**
 
 ## Database
+
 - **PostgreSQL**
 - **Prisma ORM**
 
+## Monorepo
+
+- **Turborepo**
+- **Yarn Workspaces**
+
 ## Language
+
 - **TypeScript**
 
 ---
@@ -232,16 +253,16 @@ The project uses **Turborepo + Yarn Workspaces** to manage shared code and servi
 
 ```
 /
-├── apps/
-│   ├── frontend/
-│   ├── http-backend/
-│   └── ws-backend/
+├── apps
+│   ├── frontend
+│   ├── http-backend
+│   └── ws-backend
 │
-├── packages/
-│   ├── common/
-│   ├── db/
-│   ├── ui/
-│   └── config/
+├── packages
+│   ├── common
+│   ├── db
+│   ├── ui
+│   └── config
 │
 └── turbo.json
 ```
@@ -249,14 +270,6 @@ The project uses **Turborepo + Yarn Workspaces** to manage shared code and servi
 ---
 
 # 🚀 Getting Started
-
-## Prerequisites
-
-- Node.js **v18+**
-- **Yarn**
-- **PostgreSQL**
-
----
 
 ## Clone the Repository
 
@@ -269,7 +282,7 @@ cd DrawNote
 
 ## Install Dependencies
 
-```
+```bash
 yarn install
 ```
 
@@ -289,7 +302,7 @@ Example:
 
 ```
 DATABASE_URL=postgresql://user:password@localhost:5432/drawnote
-JWT_SECRET=your_secret_key
+JWT_SECRET=your_secret
 ```
 
 ---
@@ -298,13 +311,14 @@ JWT_SECRET=your_secret_key
 
 ```
 cd packages/db
+
 npx prisma generate
 npx prisma db push
 ```
 
 ---
 
-## Run the Application
+## Run Development Servers
 
 ```
 yarn dev
@@ -312,9 +326,9 @@ yarn dev
 
 This launches:
 
-- Next.js frontend
-- HTTP backend
-- WebSocket server
+• Next.js frontend  
+• HTTP backend  
+• WebSocket server  
 
 ---
 
@@ -322,10 +336,10 @@ This launches:
 
 DrawNote is optimized for:
 
-- Low-latency real-time updates
-- Efficient canvas rendering
-- Horizontal scaling
-- High concurrent collaboration
+• low latency real-time updates  
+• scalable WebSocket communication  
+• efficient canvas rendering  
+• event-driven persistence model
 
 ---
 
@@ -337,7 +351,7 @@ DrawNote is optimized for:
 - Improved mobile drawing experience
 - Cursor presence indicators
 - Export drawings (PNG / SVG)
-- Redis event streaming for production scaling
+- Redis-based event streaming for production scaling
 
 ---
 
@@ -350,4 +364,4 @@ https://github.com/PulkitSharma-Git
 
 ---
 
-⭐ If you found this project interesting, consider **starring the repository**!
+⭐ If you found this project interesting, consider starring the repository.
