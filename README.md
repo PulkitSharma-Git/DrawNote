@@ -38,7 +38,8 @@ https://drawnote1.vercel.app
 ---
 
 # 🎥 Demo
-https://github.com/user-attachments/assets/84197114-2959-44b3-80e2-1e287d817792
+https://github.com/user-attachments/assets/b73a10b1-fb4f-4b8a-b7e7-c6e9a76b5d33
+
 
 ---
 
@@ -77,6 +78,12 @@ All drawing events are stored in the database and replayed when new users join.
 - Rectangles
 - Circles
 - Eraser
+- Diamond
+- Text
+- Resize
+- Move
+- Zoom In and Zoom Out
+- And More
 
 ### 👥 Multi-User Synchronization
 Drawing updates are broadcast instantly to all users in the room.
