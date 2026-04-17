@@ -1,10 +1,10 @@
 import Link from "next/link";
 
 const NAV_LINKS = [
-  { label: "About", href: "/about" },
-  { label: "Features", href: "/features" },
-  { label: "Contact", href: "/contact" },
-  { label: "Privacy", href: "/privacy" },
+  { label: "About", href: "#" },
+  { label: "Features", href: "#" },
+  { label: "Contact", href: "#" },
+  { label: "Privacy", href: "#" },
 ];
 
 const SOCIALS = [

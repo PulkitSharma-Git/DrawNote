@@ -24,6 +24,13 @@ const Navbar = () => {
       .then(({ data }) => {
         setUserEmail(data.user.email);
         setUserName(data.user.name);
+      })
+      .catch((err) => {
+        setIsLoggedIn(false);
+        localStorage.removeItem("token");
+        if (err.response?.status === 401) {
+          window.location.href = "/signin";
+        }
       });
   }, []);
 

@@ -4,15 +4,21 @@ import { useEffect, useState } from "react";
 import { Canvas } from "./Canvas";
 import { FaSpinner } from "react-icons/fa";
 
+import { useRouter } from "next/navigation";
+
 type Status = "connecting" | "connected" | "error";
 
 export function RoomCanvas({ roomId }: { roomId: string }) {
+  const router = useRouter();
   const [socket, setSocket] = useState<WebSocket | null>(null);
   const [status, setStatus] = useState<Status>("connecting");
 
   useEffect(() => {
     const token = localStorage.getItem("token");
-    if (!token) { setStatus("error"); return; }
+    if (!token) {
+      router.replace("/signin");
+      return;
+    }
 
     const ws = new WebSocket(`${WS_URL}?token=${token}`);
 
