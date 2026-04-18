@@ -36,7 +36,26 @@ function checkUser(token: string): string | null {
     // Catches: jwt malformed, jwt expired, invalid signature, etc.
     return null;
   }
-  // Note: no unreachable return here (previous code had one after the catch block)
+}
+
+async function broadcastRoomUsers(roomId: string) {
+  // Find all currently connected sockets that have joined this room
+  const clientsInRoom = users.filter(u => u.rooms.includes(roomId));
+  
+  // Extract unique userIds
+  const uniqueUserIds = [...new Set(clientsInRoom.map(u => u.userId))];
+
+  // Fetch from DB
+  const dbUsers = await prismaClient.user.findMany({
+    where: { id: { in: uniqueUserIds } },
+    select: { id: true, name: true, photo: true }
+  });
+
+  // Broadcast to all clients in this room (including the sender so their UI updates)
+  const message = JSON.stringify({ type: "room_users", users: dbUsers, roomId });
+  clientsInRoom.forEach(client => {
+    client.ws.send(message);
+  });
 }
 
 wss.on('connection', function connection(ws, request) {
@@ -87,6 +106,7 @@ wss.on('connection', function connection(ws, request) {
       // Only add if not already joined (prevents duplicates)
       if (!user.rooms.includes(roomId)) {
         user.rooms.push(roomId);
+        broadcastRoomUsers(roomId);
       }
     }
 
@@ -99,6 +119,7 @@ wss.on('connection', function connection(ws, request) {
       // Bug fix: was `=== parsedData.room` which kept the leaving room and
       // removed everything else. Correct behaviour is to EXCLUDE the leaving room.
       user.rooms = user.rooms.filter(x => x !== roomId);
+      broadcastRoomUsers(roomId);
     }
 
     if (parsedData.type === "chat") {
@@ -191,7 +212,12 @@ wss.on('connection', function connection(ws, request) {
   ws.on('close', () => {
     const index = users.findIndex(x => x.ws === ws);
     if (index !== -1) {
-      users.splice(index, 1);
+      const user = users[index];
+      if (user) {
+        const userRooms = [...user.rooms];
+        users.splice(index, 1);
+        userRooms.forEach(roomId => broadcastRoomUsers(roomId));
+      }
     }
   });
 });

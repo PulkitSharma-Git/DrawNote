@@ -11,6 +11,7 @@ import { IoText } from "react-icons/io5";
 import { BiMove } from "react-icons/bi";
 import { BsDiamond } from "react-icons/bs";
 import { MousePointer2, Eraser } from "lucide-react";
+import { RoomUsers, RoomUser } from "./RoomUsers";
 
 export type Tool = "circle" | "rect" | "pencil" | "line" | "text" | "move" | "diamond" | "select" | "eraser";
 export type Color = "red-500" | "green-500" | "blue-500" | "white";
@@ -33,6 +34,22 @@ export function Canvas({ socket, roomId }: { socket: WebSocket; roomId: string }
   const [selected, setSelected] = useState<Tool>("circle");
   const [selectColor, setselectColor] = useState<Color>("white");
   const [zoom, setZoom] = useState(1);
+  
+  const [roomUsers, setRoomUsers] = useState<RoomUser[]>([]);
+
+  // Sync users in room over sockets
+  useEffect(() => {
+    const handleMessage = (event: MessageEvent) => {
+      try {
+        const parsed = JSON.parse(event.data);
+        if (parsed.type === "room_users") {
+          setRoomUsers(parsed.users);
+        }
+      } catch (e) {}
+    };
+    socket.addEventListener("message", handleMessage);
+    return () => socket.removeEventListener("message", handleMessage);
+  }, [socket]);
 
   // Init game
   useEffect(() => {
@@ -81,7 +98,10 @@ export function Canvas({ socket, roomId }: { socket: WebSocket; roomId: string }
       <Palette onColorSelect={(color) => setselectColor(color as Color)} />
 
       {/* Zoom UI */}
-      <div className="absolute bottom-4 left-4 z-50 flex items-center gap-1 px-2 py-1.5 rounded-2xl bg-[#0b0d12]/80 backdrop-blur-xl border border-white/10 shadow-xl shadow-black/40">
+      <div 
+        className="absolute bottom-4 left-4 z-50 flex items-center gap-1 px-2 py-1.5 rounded-2xl bg-[#0b0d12]/80 backdrop-blur-sm border border-white/10 shadow-xl shadow-black/40"
+        style={{ willChange: 'transform', transform: 'translateZ(0)' }}
+      >
         <button 
           className="flex items-center justify-center w-8 h-8 rounded-xl transition-all duration-200 text-white/40 hover:text-white/80 hover:bg-white/10 font-bold"
           onClick={() => game?.setZoom(Math.max(0.1, zoom - 0.1))}
@@ -104,6 +124,10 @@ export function Canvas({ socket, roomId }: { socket: WebSocket; roomId: string }
           +
         </button>
       </div>
+
+
+      {/* Users UI */}
+      <RoomUsers users={roomUsers} />
 
     </div>
   );

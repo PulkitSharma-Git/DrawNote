@@ -41,8 +41,8 @@ export default function Palette({ colors = DEFAULT_COLORS, onColorSelect }: Pall
 
   return (
     <div
-      className="absolute z-50 flex flex-col gap-2 p-2.5 rounded-2xl bg-[#0b0d12]/80 backdrop-blur-xl border border-white/10 shadow-xl shadow-black/40"
-      style={{ left: pos.x, top: pos.y }}
+      className="absolute z-50 flex flex-col gap-2 p-2.5 rounded-2xl bg-[#0b0d12]/80 backdrop-blur-sm border border-white/10 shadow-xl shadow-black/40"
+      style={{ left: pos.x, top: pos.y, willChange: 'transform', transform: `translateZ(0)` }}
     >
       {/* Drag handle */}
       <div
