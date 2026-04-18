@@ -2,9 +2,11 @@ import { Color, Tool } from "@/components/Canvas";
 import { getExistingShapes } from "./http";
 import { colorCoder } from "./colorCoder";
 
+const generateId = () => Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
 
 type Shape = {
     type: "rect";
+    id: string;
     x: number;
     y: number;
     width: number;
@@ -12,12 +14,14 @@ type Shape = {
     color: string;
 } | {
     type: "circle";
+    id: string;
     centerX: number;
     centerY: number;
     radius: number;
     color: string;
 } | {
     type: "line";
+    id: string;
     startX: number;
     startY: number;
     endX: number;
@@ -25,6 +29,7 @@ type Shape = {
     color: string;
 } | {
     type: "text";
+    id: string;
     text: string;
     startX: number;
     startY: number;
@@ -33,10 +38,12 @@ type Shape = {
     color: string;
 } | {
     type: "pencil";
+    id: string;
     color: string;
     points: {x: number, y: number}[];
 } | {
     type: "diamond";
+    id: string;
     color: string;
     centerX: number;
     centerY: number;
@@ -60,7 +67,7 @@ export class Game {
     private startY = 0;
     private selected: Tool = "circle";
     private selectedColor: Color = "red-500";
-    private currentPencilStroke: { type: "pencil"; color: string; points: { x: number; y: number }[] } | null = null;
+    private currentPencilStroke: { type: "pencil"; id: string; color: string; points: { x: number; y: number }[] } | null = null;
     socket: WebSocket;
 
     private scale = 1;
@@ -332,6 +339,16 @@ export class Game {
                 const parsedShape = JSON.parse(message.message);
                 this.existingShapes.push(parsedShape.shape);
                 this.clearCanvas();
+            } else if (message.type == "erase") {
+                this.existingShapes = this.existingShapes.filter(s => s.id !== message.shapeId);
+                this.clearCanvas();
+            } else if (message.type == "update") {
+                const parsedMessage = JSON.parse(message.message);
+                const index = this.existingShapes.findIndex(s => s.id === parsedMessage.shape.id);
+                if (index !== -1) {
+                    this.existingShapes[index] = parsedMessage.shape;
+                    this.clearCanvas();
+                }
             }
         });
     }
@@ -488,7 +505,7 @@ export class Game {
         }
 
         if (this.selected === "pencil") {
-            this.currentPencilStroke = { type: "pencil", color: this.selectedColor, points: [{ x: this.startX, y: this.startY }] };
+            this.currentPencilStroke = { type: "pencil", id: generateId(), color: this.selectedColor, points: [{ x: this.startX, y: this.startY }] };
         }
     }
 
@@ -501,7 +518,8 @@ export class Game {
                 const shape = this.existingShapes[this.selectedShapeIndex];
                 this.socket.send(JSON.stringify({
                     type: "update",
-                    message: JSON.stringify({ index: this.selectedShapeIndex, shape }),
+                    message: JSON.stringify({ shape }),
+                    shapeId: shape.id,
                     roomId: this.roomId
                 }));
             }
@@ -519,19 +537,19 @@ export class Game {
         let shape: Shape | null = null;
 
         if (selected === "rect") {
-            shape = { type: "rect", x: this.startX, y: this.startY, height, width, color: this.selectedColor };
+            shape = { type: "rect", id: generateId(), x: this.startX, y: this.startY, height, width, color: this.selectedColor };
 
         } else if (selected === "circle") {
             const radius = Math.max(width, height) / 2;
-            shape = { type: "circle", radius, centerX: this.startX + radius, centerY: this.startY + radius, color: this.selectedColor };
+            shape = { type: "circle", id: generateId(), radius, centerX: this.startX + radius, centerY: this.startY + radius, color: this.selectedColor };
 
         } else if (selected === "line") {
-            shape = { type: "line", startX: this.startX, startY: this.startY, endX: this.startX + width, endY: this.startY + height, color: this.selectedColor };
+            shape = { type: "line", id: generateId(), startX: this.startX, startY: this.startY, endX: this.startX + width, endY: this.startY + height, color: this.selectedColor };
 
         } else if (selected === "diamond") {
             const centerX = this.startX + width / 2;
             const centerY = this.startY + height / 2;
-            shape = { type: "diamond", centerX, centerY, width: Math.abs(width), height: Math.abs(height), color: this.selectedColor };
+            shape = { type: "diamond", id: generateId(), centerX, centerY, width: Math.abs(width), height: Math.abs(height), color: this.selectedColor };
 
         } else if (selected === "text") {
             const FONT_SIZE = 25;
@@ -580,7 +598,7 @@ export class Game {
                 const shape: Shape = {
                     type: "text", startX, startY,
                     font: FONT_FAMILY, size: String(FONT_SIZE),
-                    color: this.selectedColor, text,
+                    color: this.selectedColor, text, id: generateId()
                 };
                 this.existingShapes.push(shape);
                 this.clearCanvas();
@@ -736,6 +754,9 @@ export class Game {
 
         if (indexToRemove !== -1) {
             const actualIndex = this.existingShapes.length - 1 - indexToRemove;
+            const removedShape = this.existingShapes[actualIndex];
+            this.socket.send(JSON.stringify({ type: "erase", roomId: this.roomId, shapeId: removedShape.id }));
+
             this.existingShapes.splice(actualIndex, 1);
             if (this.selectedShapeIndex === actualIndex) {
                 this.selectedShapeIndex = null;

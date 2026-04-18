@@ -127,6 +127,62 @@ wss.on('connection', function connection(ws, request) {
         }
       });
     }
+
+    if (parsedData.type === "erase") {
+      const roomId = String(parsedData.roomId);
+      const shapeId = parsedData.shapeId;
+
+      // Find the chat entry that contains this shape's unique ID and delete it
+      const roomChats = await prismaClient.chat.findMany({
+        where: { roomId: Number(roomId) },
+      });
+      const chatToDelete = roomChats.find(chat => chat.message.includes(shapeId));
+      
+      if (chatToDelete) {
+        await prismaClient.chat.delete({
+          where: { id: chatToDelete.id }
+        });
+      }
+
+      users.forEach(user => {
+        if (user.rooms.includes(roomId) && user.ws !== ws) {
+          user.ws.send(JSON.stringify({
+            type: "erase",
+            shapeId,
+            roomId,
+          }));
+        }
+      });
+    }
+
+    if (parsedData.type === "update") {
+      const roomId = String(parsedData.roomId);
+      const shapeId = parsedData.shapeId;
+      const message = parsedData.message;
+
+      // Find the chat entry that contains this shape's unique ID and update its payload
+      const roomChats = await prismaClient.chat.findMany({
+        where: { roomId: Number(roomId) },
+      });
+      const chatToUpdate = roomChats.find(chat => chat.message.includes(shapeId));
+      
+      if (chatToUpdate) {
+        await prismaClient.chat.update({
+          where: { id: chatToUpdate.id },
+          data: { message }
+        });
+      }
+
+      users.forEach(user => {
+        if (user.rooms.includes(roomId) && user.ws !== ws) {
+          user.ws.send(JSON.stringify({
+            type: "update",
+            message,
+            roomId,
+          }));
+        }
+      });
+    }
   });
 
   // Clean up: remove the user from the registry when they disconnect.
