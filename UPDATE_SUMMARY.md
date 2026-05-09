@@ -8,6 +8,11 @@ This document provides a detailed summary of the logical changes, features, and 
   * Fixed an issue where erased shapes would not delete from the database and would reappear upon reloading.
   * Added structural shape IDs alongside WebSocket event listening to properly broadcast shape removals and coordinate updates (moving/resizing) in real-time across connected clients.
 
+* **Room Management & Security (May 2026)**
+  * **Room Deletion**: Added a dedicated `DELETE /room/:roomId` API endpoint that safely removes all associated drawing/chat records before deleting the room to prevent foreign key constraint errors. Updated the UI to feature a clear, accessible trash icon for room administrators.
+  * **Link Sharing**: Added a convenient one-click "Share Link" button to room cards, copying the full absolute URL for easier invites.
+  * **Security Strategy Outlined**: Evaluated the current open-access architecture where anyone with a room ID can join. Formulated and documented a comprehensive three-phase security strategy (Basic Access Control, Invite System, Real-Time Approval) inside `TechnicalAnalysis.md` to guide future iterations.
+
 * **Social Canvas Tracking (`apps/ws-backend/src/index.ts`, `apps/frontend/components/Canvas.tsx`, `apps/frontend/components/RoomUsers.tsx`)**
   * Added a "People in Room" feature connecting active WebSocket presence with frontend UI.
   * The backend extracts connected `userId`s, fetches their display names from Prisma, and broadcasts `room_users` to dynamically manage Canvas connections. 

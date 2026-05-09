@@ -161,6 +161,46 @@ app.get("/room/:roomId", async (req, res) => {
     res.json({ room });
 })
 
+app.delete("/room/:roomId", middleware, async (req, res) => {
+    const roomId = Number(req.params.roomId);
+    const userId = req.userId;
+
+    if (isNaN(roomId)) {
+        res.status(400).json({ message: "Invalid room ID" });
+        return;
+    }
+
+    try {
+        const room = await prismaClient.room.findUnique({
+            where: { id: roomId }
+        });
+
+        if (!room) {
+            res.status(404).json({ message: "Room not found" });
+            return;
+        }
+
+        if (room.adminId !== userId) {
+            res.status(403).json({ message: "Unauthorized to delete this room" });
+            return;
+        }
+
+        // Delete associated chats first due to foreign key constraints
+        await prismaClient.chat.deleteMany({
+            where: { roomId: roomId }
+        });
+
+        await prismaClient.room.delete({
+            where: { id: roomId }
+        });
+
+        res.json({ message: "Room deleted successfully" });
+    } catch (e) {
+        console.error(e);
+        res.status(500).json({ message: "Failed to delete room" });
+    }
+});
+
 app.get("/getUser", middleware, async (req, res) => {
     const userId = req.userId;
 

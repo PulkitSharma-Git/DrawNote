@@ -31,6 +31,21 @@ export default function JoinPage() {
       .catch(() => setStatus("error"));
   }, []);
 
+  const handleDeleteRoom = async (roomId: string) => {
+    const token = localStorage.getItem("token");
+    if (!token) return;
+
+    try {
+      await axios.delete(`${HTTP_BACKEND}/room/${roomId}`, {
+        headers: { Authorization: token }
+      });
+      setRooms((prev) => prev.filter((r) => r.id !== roomId));
+    } catch (e) {
+      console.error("Failed to delete room:", e);
+      alert("Failed to delete room. Please try again.");
+    }
+  };
+
   const renderRooms = () => {
     if (status === "loading") return (
       <div className="flex justify-center py-16">
@@ -51,6 +66,7 @@ export default function JoinPage() {
             roomId={room.id}
             roomname={room.slug}
             onClick={() => router.push(`/canvas/${room.id}`)}
+            onDelete={handleDeleteRoom}
           />
         ))}
       </Rooms>
