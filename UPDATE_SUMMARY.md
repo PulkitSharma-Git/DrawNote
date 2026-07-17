@@ -2,6 +2,14 @@
 
 This document provides a detailed summary of the logical changes, features, and fixes introduced to the DrawNote application across its commit history. It serves as a high-level changelog to track the project's evolution.
 
+## Latest Updates (July 2026)
+
+* **Server Wake-up & Health Check Status UI**
+  * Added a `/health` endpoint to `http-backend` (Express) returning a simple status JSON.
+  * Added a `/health` endpoint and CORS OPTIONS handler to `ws-backend` by wrapping the WebSocket server in an `http.createServer` instance.
+  * Shipped a beautiful client-side `<ServerStatusCard />` component in the frontend mimicking a miniature macOS-style browser window.
+  * The status card polls both backend endpoints to wake them up when the user first opens the page and automatically hides itself with Framer Motion once they are online.
+
 ## Latest Updates (April 2026)
 
 * **Canvas Synchronization fixes (`2d967cf`, `8e07514`)** 

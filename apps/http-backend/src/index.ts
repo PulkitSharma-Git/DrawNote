@@ -10,6 +10,13 @@ const app = express();
 app.use(express.json());
 app.use(cors())
 
+app.get("/health", (req, res) => {
+    res.json({
+        status: "healthy",
+        timestamp: new Date().toISOString()
+    });
+});
+
 app.post("/signup", async (req, res) => {
 
     const parsedData = CreateUserSchema.safeParse(req.body);

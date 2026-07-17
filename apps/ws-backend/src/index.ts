@@ -3,7 +3,51 @@ import jwt, { JwtPayload } from "jsonwebtoken";
 import { JWT_SECRET } from '@repo/backend-common/config';
 import { prismaClient } from "@repo/db/client";
 
-const wss = new WebSocketServer({ port: process.env.PORT ? parseInt(process.env.PORT) : 8080 });
+// For Render cold starts.
+// We create a small HTTP server and attach the WebSocketServer to it.
+// This lets us expose a /health endpoint so the frontend can wait until
+// the backend is awake before opening a WebSocket connection.
+
+// NOTE:
+// createServer comes from Node.js ("http"), NOT Express.
+// No Express is used here—it's just Node's built-in HTTP server + ws library
+// /health endpoint: That's a tiny amount of HTTP functionality. Using Express just for that is like bringing a toolbox to tighten one screw. The built-in http module already does exactly what you need with minimal code.
+// So it does not make sense to import a whole lib just for one endpoint
+// and since express is not used thats why the code looks bulky
+
+//------------------------------------
+import { createServer } from 'http';
+
+const port = process.env.PORT ? parseInt(process.env.PORT) : 8080;
+
+const server = createServer((req, res) => {
+  // Handle CORS headers
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS, HEAD');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
+  if (req.method === 'OPTIONS') {
+    res.writeHead(204);
+    res.end();
+    return;
+  }
+
+  if (req.url === '/health' && (req.method === 'GET' || req.method === 'HEAD')) {
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({ status: "healthy", timestamp: new Date().toISOString() }));
+  } else {
+    res.writeHead(404);
+    res.end();
+  }
+});
+
+//------------------------------------------
+
+const wss = new WebSocketServer({ server });
+
+server.listen(port, () => {
+  console.log(`WebSocket server starting on port ${port}`);
+});
 
 // In-memory registry of connected users.
 // Each entry holds the WebSocket connection, the rooms the user has joined,
