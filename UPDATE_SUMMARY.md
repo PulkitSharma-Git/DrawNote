@@ -9,6 +9,7 @@ This document provides a detailed summary of the logical changes, features, and 
   * Added a `/health` endpoint and CORS OPTIONS handler to `ws-backend` by wrapping the WebSocket server in an `http.createServer` instance.
   * Shipped a beautiful client-side `<ServerStatusCard />` component in the frontend featuring a clean, minimal design with a thick gradient progress loader bar at the top.
   * The status card polls both backend endpoints to wake them up when the user first opens the page and automatically hides itself with Framer Motion once they are online.
+  * Updated the server status card loader progress behavior: the progress bar now smoothly and dynamically increments from 10% up to 90% over a 60-second duration during the booting/connecting phase, and immediately "rushes to complete" (jumps to 100%) as soon as a healthy poll is received from the backend servers.
 
 ## Latest Updates (April 2026)
 

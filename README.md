@@ -352,6 +352,7 @@ DrawNote is optimized for:
 - Cursor presence indicators
 - Export drawings (PNG / SVG)
 - Redis-based event streaming for production scaling
+- Multiple Backgrounds
 
 ---
 

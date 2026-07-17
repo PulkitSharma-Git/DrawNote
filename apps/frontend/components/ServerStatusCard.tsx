@@ -11,11 +11,35 @@ export default function ServerStatusCard() {
   const [showCard, setShowCard] = useState(false);
   const [isCompleted, setIsCompleted] = useState(false);
   const [shouldRender, setShouldRender] = useState(true);
+  const [progress, setProgress] = useState(10);
 
   // Use refs to avoid stale closures inside setInterval/setTimeout callbacks
   const httpHealthyRef = useRef(false);
   const wsHealthyRef = useRef(false);
   const isCompletedRef = useRef(false);
+  const startTimeRef = useRef(Date.now());
+
+  // Handle loader progress over time or on completion
+  useEffect(() => {
+    if (isCompleted) {
+      setProgress(100);
+      return;
+    }
+
+    const interval = setInterval(() => {
+      const elapsed = Date.now() - startTimeRef.current;
+      const duration = 60000; // 60 seconds
+      if (elapsed >= duration) {
+        setProgress(90);
+        clearInterval(interval);
+      } else {
+        const nextProgress = 10 + (elapsed / duration) * 80;
+        setProgress(Math.min(90, Math.round(nextProgress)));
+      }
+    }, 100);
+
+    return () => clearInterval(interval);
+  }, [isCompleted]);
 
   const httpHealthUrl = `${HTTP_BACKEND}/health`;
   const wsHealthUrl = WS_URL.replace(/^ws/, "http") + "/health";
@@ -100,12 +124,6 @@ export default function ServerStatusCard() {
   // If both servers are healthy from the beginning and we never show it
   if (!shouldRender) return null;
 
-  // Let's compute progress percentage
-  // 10% base, 55% if one is online, 100% when both online
-  let progress = 10;
-  if (httpHealthy && wsHealthy) progress = 100;
-  else if (httpHealthy || wsHealthy) progress = 55;
-
   return (
     <AnimatePresence>
       {showCard && (
@@ -122,7 +140,10 @@ export default function ServerStatusCard() {
               <motion.div
                 initial={{ width: "10%" }}
                 animate={{ width: `${progress}%` }}
-                transition={{ duration: 0.5 }}
+                transition={{
+                  duration: progress === 100 ? 0.4 : 0.1,
+                  ease: progress === 100 ? "easeOut" : "linear"
+                }}
                 className="h-full bg-gradient-to-r from-orange-500 via-red-500 to-blue-500"
               />
             </div>
