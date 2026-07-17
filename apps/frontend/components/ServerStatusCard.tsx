@@ -6,9 +6,9 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Globe, Server, CheckCircle } from "lucide-react";
 
 export default function ServerStatusCard() {
-  const [httpHealthy, setHttpHealthy] = useState(false); // mock booting
-  const [wsHealthy, setWsHealthy] = useState(false);   // mock booting
-  const [showCard, setShowCard] = useState(true);       // force show
+  const [httpHealthy, setHttpHealthy] = useState(false);
+  const [wsHealthy, setWsHealthy] = useState(false);
+  const [showCard, setShowCard] = useState(false);
   const [isCompleted, setIsCompleted] = useState(false);
   const [shouldRender, setShouldRender] = useState(true);
 
@@ -20,7 +20,6 @@ export default function ServerStatusCard() {
   const httpHealthUrl = `${HTTP_BACKEND}/health`;
   const wsHealthUrl = WS_URL.replace(/^ws/, "http") + "/health";
 
-  /* Temporarily commented out to show mock card for UI styling
   useEffect(() => {
     let active = true;
     let timer: NodeJS.Timeout;
@@ -97,11 +96,9 @@ export default function ServerStatusCard() {
       clearInterval(pollInterval);
     };
   }, [httpHealthUrl, wsHealthUrl]);
-  */
 
   // If both servers are healthy from the beginning and we never show it
-  // Commented out for mock rendering
-  // if (!shouldRender) return null;
+  if (!shouldRender) return null;
 
   // Let's compute progress percentage
   // 10% base, 55% if one is online, 100% when both online
