@@ -4,6 +4,17 @@ This document provides a detailed summary of the logical changes, features, and 
 
 ## Latest Updates (July 2026)
 
+* **SaaS-Style Dashboard Redesign**
+  * Removed the large `RoomForm` landing card from the dashboard (`page.tsx`) to prioritize the rooms list.
+  * Shipped a clean, centered container layout (`max-w-6xl`) with improved spacing.
+  * Integrated a "+ New Room" button aligned with the "Your Rooms" heading, reusing the existing `Button` component exactly as-is.
+  * Created custom `CustomModal` and `NewRoomModal` components utilizing pure React state and Tailwind CSS (no external UI libraries) to manage Create/Join forms within an accessible, tabbed dialog interface.
+  * Added `type` prop support to the primary `Button` component to ensure smooth form submissions via keyboard enter key.
+  * Refactored the Room card design (`Room.tsx`):
+    - Increased height and padding (`p-6`).
+    - Enhanced typography hierarchy (bold title, smaller muted ID). Removed description text ("Collaborative canvas") and centered header elements vertically.
+    - Added high-quality hover transitions (translateY by -4px, shadow, border glow, and subtle arrow shifting).
+
 * **Server Wake-up & Health Check Status UI**
   * Added a `/health` endpoint to `http-backend` (Express) returning a simple status JSON.
   * Added a `/health` endpoint and CORS OPTIONS handler to `ws-backend` by wrapping the WebSocket server in an `http.createServer` instance.

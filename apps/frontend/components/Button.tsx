@@ -4,11 +4,13 @@ interface ButtonProps {
   children: ReactNode;
   onClick?: () => void;
   className?: string;
+  type?: "button" | "submit" | "reset";
 }
 
-export function Button({ children, onClick, className }: ButtonProps) {
+export function Button({ children, onClick, className, type = "button" }: ButtonProps) {
   return (
     <button
+      type={type}
       onClick={onClick}
       className={`
         group relative inline-flex items-center justify-center

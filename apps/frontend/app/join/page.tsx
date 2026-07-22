@@ -4,9 +4,10 @@ import { useRouter } from "next/navigation";
 import axios from "axios";
 import { FaSpinner } from "react-icons/fa";
 import PageLayout from "@/components/PageLayout";
-import { RoomForm } from "@/components/RoomForm";
 import Rooms from "@/components/Rooms";
 import Room from "@/components/Room";
+import { Button } from "@/components/Button";
+import NewRoomModal from "@/components/NewRoomModal";
 import { HTTP_BACKEND } from "@/config";
 
 interface RoomType {
@@ -20,6 +21,7 @@ export default function JoinPage() {
   const router = useRouter();
   const [rooms, setRooms] = useState<RoomType[]>([]);
   const [status, setStatus] = useState<Status>("loading");
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -29,7 +31,7 @@ export default function JoinPage() {
       .get(`${HTTP_BACKEND}/getRooms`, { headers: { Authorization: token } })
       .then(({ data }) => { setRooms(data.rooms ?? []); setStatus("success"); })
       .catch(() => setStatus("error"));
-  }, []);
+  }, [router]);
 
   const handleDeleteRoom = async (roomId: string) => {
     const token = localStorage.getItem("token");
@@ -75,17 +77,22 @@ export default function JoinPage() {
 
   return (
     <PageLayout>
-      <div className="pt-24 pb-20">
-        {/* Room Form */}
-        <section className="mb-12 flex justify-center">
-          <RoomForm />
-        </section>
+      <div className="pt-28 pb-20 max-w-6xl mx-auto px-6 relative z-10">
+        {/* Header & Actions */}
+        <div className="flex items-center justify-between border-b border-white/5 pb-5 mb-8">
+          <h1 className="text-2xl font-bold tracking-tight text-white">Your Rooms</h1>
+          <Button onClick={() => setIsModalOpen(true)} className="!py-2.5 !px-5 text-sm">
+            <span className="text-base font-bold mr-1">+</span> New Room
+          </Button>
+        </div>
 
         {/* Rooms List */}
-        <section className="max-w-6xl mx-auto px-6">
-          <h2 className="text-lg font-semibold text-white/80 mb-6">Your Rooms</h2>
+        <section>
           {renderRooms()}
         </section>
+
+        {/* New Room Modal */}
+        <NewRoomModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
       </div>
     </PageLayout>
   );
