@@ -1,5 +1,5 @@
-import { SignUpLayout } from "@/components/SignUpLayout";
-import { SignUpCard } from "@/components/SignUpCard";
+import { SignUpLayout } from "./SignUpLayout";
+import { SignUpCard } from "./SignUpCard";
 
 export default function SignUpPage() {
   return (

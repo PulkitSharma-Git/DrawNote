@@ -4,7 +4,10 @@ import { forwardRef, InputHTMLAttributes, useEffect, useState } from "react";
 import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
 import { MdOutlineErrorOutline } from "react-icons/md";
 
-type PasswordInputProps = Omit<InputHTMLAttributes<HTMLInputElement>, "type"> & {
+type PasswordInputProps = Omit<
+  InputHTMLAttributes<HTMLInputElement>,
+  "type"
+> & {
   minLength?: number;
   showStrength?: boolean;
 };
@@ -24,12 +27,15 @@ export const PasswordInput = forwardRef<HTMLInputElement, PasswordInputProps>(
       return score;
     })();
 
-    const strengthLabel = ["Weak", "Okay", "Good", "Strong", "Very strong"][strength];
+    const strengthLabel = ["Weak", "Okay", "Good", "Strong", "Very strong"][
+      strength
+    ];
     const strengthPercent = (strength / 4) * 100;
     const hasInput = value.length > 0;
 
     useEffect(() => {
-      const handler = (e: KeyboardEvent) => setCapsLock(e.getModifierState("CapsLock"));
+      const handler = (e: KeyboardEvent) =>
+        setCapsLock(e.getModifierState("CapsLock"));
       window.addEventListener("keydown", handler);
       window.addEventListener("keyup", handler);
       return () => {
@@ -56,24 +62,34 @@ export const PasswordInput = forwardRef<HTMLInputElement, PasswordInputProps>(
             className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center justify-center rounded-full p-1.5 bg-white/10 backdrop-blur-md text-white/70 hover:text-white transition-colors"
             aria-label={showPassword ? "Hide password" : "Show password"}
           >
-            {showPassword ? <AiOutlineEyeInvisible className="h-5 w-5" /> : <AiOutlineEye className="h-5 w-5" />}
+            {showPassword ? (
+              <AiOutlineEyeInvisible className="h-5 w-5" />
+            ) : (
+              <AiOutlineEye className="h-5 w-5" />
+            )}
           </button>
         </div>
 
         {/* Strength bar — hidden when showStrength=false */}
         {showStrength && (
           <>
-            <div className={`h-2 w-full rounded-full bg-white/10 overflow-hidden transition-opacity duration-500 ${hasInput ? "opacity-100" : "opacity-0"}`}>
+            <div
+              className={`h-2 w-full rounded-full bg-white/10 overflow-hidden transition-opacity duration-500 ${hasInput ? "opacity-100" : "opacity-0"}`}
+            >
               <div
                 style={{ width: `${strengthPercent}%` }}
                 className="h-full rounded-full bg-gradient-to-r from-blue-500 via-orange-400 to-red-500 transition-all duration-700 ease-in-out"
               />
             </div>
-            <p className={`text-xs text-white/50 transition-opacity duration-500 ${hasInput ? "opacity-100" : "opacity-0"}`}>
+            <p
+              className={`text-xs text-white/50 transition-opacity duration-500 ${hasInput ? "opacity-100" : "opacity-0"}`}
+            >
               Strength: <span className="text-white">{strengthLabel}</span>
             </p>
             {hasInput && value.length < minLength && (
-              <p className="text-xs text-red-400">Password must be at least {minLength} characters</p>
+              <p className="text-xs text-red-400">
+                Password must be at least {minLength} characters
+              </p>
             )}
           </>
         )}
@@ -87,7 +103,7 @@ export const PasswordInput = forwardRef<HTMLInputElement, PasswordInputProps>(
         )}
       </div>
     );
-  }
+  },
 );
 
 PasswordInput.displayName = "PasswordInput";

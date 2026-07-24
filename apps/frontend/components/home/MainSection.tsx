@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { motion, HTMLMotionProps } from "framer-motion";
-import { Button } from "@/components/Button";
+import { Button } from "@/components/ui/Button";
 import BackgroundAnimation from "./BackgroundAnimation";
 
 const fadeUp = (delay = 0) => ({
@@ -11,7 +11,11 @@ const fadeUp = (delay = 0) => ({
 });
 
 const FloatingOrb = ({ className, ...anim }: HTMLMotionProps<"div">) => (
-  <motion.div aria-hidden className={`absolute rounded-full blur-3xl ${className}`} {...anim} />
+  <motion.div
+    aria-hidden
+    className={`absolute rounded-full blur-3xl ${className}`}
+    {...anim}
+  />
 );
 
 const Badge = () => (
@@ -37,12 +41,9 @@ const Heading = () => (
 );
 
 const Subtext = () => (
-  <motion.p
-    {...fadeUp(0.3)}
-    className="mt-5 max-w-xl text-base text-gray-400"
-  >
-    Sketch, brainstorm, and collaborate instantly on a shared canvas —
-    built for teams, creators, and fast-moving ideas.
+  <motion.p {...fadeUp(0.3)} className="mt-5 max-w-xl text-base text-gray-400">
+    Sketch, brainstorm, and collaborate instantly on a shared canvas — built for
+    teams, creators, and fast-moving ideas.
   </motion.p>
 );
 

@@ -1,12 +1,10 @@
-import PageLayout from "@/components/PageLayout";
-import MainSection from "@/components/MainSection";
+import PageLayout from "@/components/layout/PageLayout";
+import MainSection from "@/components/home/MainSection";
 
 export default function Home() {
-  
   return (
     <PageLayout>
-    <MainSection />
-  </PageLayout>
-   
+      <MainSection />
+    </PageLayout>
   );
 }

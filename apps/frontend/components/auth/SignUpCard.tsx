@@ -4,9 +4,9 @@ import axios, { AxiosError } from "axios";
 import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Input1 } from "@/components/Input1";
-import { PasswordInput } from "@/components/PasswordInput";
-import { Button } from "@/components/Button";
+import { Input } from "@/components/ui/Input";
+import { PasswordInput } from "@/components/ui/PasswordInput";
+import { Button } from "@/components/ui/Button";
 import { FaSpinner } from "react-icons/fa";
 
 export function SignUpCard() {
@@ -49,7 +49,11 @@ export function SignUpCard() {
       router.push("/join");
     } catch (error) {
       const err = error as AxiosError;
-      alert("Signup failed: " + ((err.response?.data as { message: string })?.message || "Unknown error"));
+      alert(
+        "Signup failed: " +
+          ((err.response?.data as { message: string })?.message ||
+            "Unknown error"),
+      );
     } finally {
       setLoading(false);
     }
@@ -61,21 +65,45 @@ export function SignUpCard() {
       <div className="space-y-1">
         {/* Mobile-only logo */}
         <span className="lg:hidden block text-lg font-extrabold tracking-wide text-white mb-6">
-          Draw<span className="bg-gradient-to-r from-orange-400 via-red-500 to-blue-500 bg-clip-text text-transparent">Note</span>
+          Draw
+          <span className="bg-gradient-to-r from-orange-400 via-red-500 to-blue-500 bg-clip-text text-transparent">
+            Note
+          </span>
         </span>
-        <h2 className="text-2xl font-semibold text-white tracking-tight">Create your account</h2>
-        <p className="text-sm text-white/40">Get started for free — no credit card required</p>
+        <h2 className="text-2xl font-semibold text-white tracking-tight">
+          Create your account
+        </h2>
+        <p className="text-sm text-white/40">
+          Get started for free — no credit card required
+        </p>
       </div>
 
       {/* Form */}
       <div className="space-y-3">
-        <Input1 ref={nameRef} type="text" placeholder="Full name" disabled={loading} />
-        <Input1 ref={emailRef} type="email" placeholder="Email address" disabled={loading} />
-        <PasswordInput ref={passwordRef} placeholder="Password" disabled={loading} />
+        <Input
+          ref={nameRef}
+          type="text"
+          placeholder="Full name"
+          disabled={loading}
+        />
+        <Input
+          ref={emailRef}
+          type="email"
+          placeholder="Email address"
+          disabled={loading}
+        />
+        <PasswordInput
+          ref={passwordRef}
+          placeholder="Password"
+          disabled={loading}
+        />
       </div>
 
       {/* CTA */}
-      <Button onClick={onClickHandler} className="w-full h-11 disabled:opacity-60">
+      <Button
+        onClick={onClickHandler}
+        className="w-full h-11 disabled:opacity-60"
+      >
         {loading ? <FaSpinner className="animate-spin" /> : "Create account →"}
       </Button>
 
@@ -89,7 +117,10 @@ export function SignUpCard() {
       {/* Sign in link */}
       <p className="text-center text-sm text-white/40">
         Already have an account?{" "}
-        <Link href="/signin" className="text-white/70 hover:text-white transition-colors underline underline-offset-4 decoration-white/20">
+        <Link
+          href="/signin"
+          className="text-white/70 hover:text-white transition-colors underline underline-offset-4 decoration-white/20"
+        >
           Sign in
         </Link>
       </p>
@@ -97,9 +128,19 @@ export function SignUpCard() {
       {/* Legal */}
       <p className="text-center text-xs text-white/25">
         By continuing, you agree to our{" "}
-        <Link href="/terms" className="hover:text-white/50 transition-colors underline underline-offset-2 decoration-white/10">Terms</Link>
+        <Link
+          href="/terms"
+          className="hover:text-white/50 transition-colors underline underline-offset-2 decoration-white/10"
+        >
+          Terms
+        </Link>
         {" & "}
-        <Link href="/privacy" className="hover:text-white/50 transition-colors underline underline-offset-2 decoration-white/10">Privacy Policy</Link>
+        <Link
+          href="/privacy"
+          className="hover:text-white/50 transition-colors underline underline-offset-2 decoration-white/10"
+        >
+          Privacy Policy
+        </Link>
       </p>
     </div>
   );

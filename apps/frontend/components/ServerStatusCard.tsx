@@ -51,11 +51,19 @@ export default function ServerStatusCard() {
 
     const checkHealth = async () => {
       try {
-        const httpPromise = fetch(httpHealthUrl, { method: "GET", mode: "cors", cache: "no-store" })
+        const httpPromise = fetch(httpHealthUrl, {
+          method: "GET",
+          mode: "cors",
+          cache: "no-store",
+        })
           .then((res) => res.ok)
           .catch(() => false);
 
-        const wsPromise = fetch(wsHealthUrl, { method: "GET", mode: "cors", cache: "no-store" })
+        const wsPromise = fetch(wsHealthUrl, {
+          method: "GET",
+          mode: "cors",
+          cache: "no-store",
+        })
           .then((res) => res.ok)
           .catch(() => false);
 
@@ -142,7 +150,7 @@ export default function ServerStatusCard() {
                 animate={{ width: `${progress}%` }}
                 transition={{
                   duration: progress === 100 ? 0.4 : 0.1,
-                  ease: progress === 100 ? "easeOut" : "linear"
+                  ease: progress === 100 ? "easeOut" : "linear",
                 }}
                 className="h-full bg-gradient-to-r from-orange-500 via-red-500 to-blue-500"
               />
@@ -165,13 +173,17 @@ export default function ServerStatusCard() {
                 <div className="flex items-center justify-between py-1 px-1">
                   <div className="flex items-center gap-1.5">
                     <Server className="h-3.5 w-3.5 text-neutral-400" />
-                    <span className="text-[11px] font-medium text-neutral-300">HTTP Server</span>
+                    <span className="text-[11px] font-medium text-neutral-300">
+                      HTTP Server
+                    </span>
                   </div>
                   <div className="flex items-center gap-1.5">
                     <span className="text-[9px] font-mono text-neutral-400">
                       {httpHealthy ? "Online" : "Booting"}
                     </span>
-                    <div className={`h-1.5 w-1.5 rounded-full ${httpHealthy ? "bg-emerald-400 animate-pulse" : "bg-amber-400"}`} />
+                    <div
+                      className={`h-1.5 w-1.5 rounded-full ${httpHealthy ? "bg-emerald-400 animate-pulse" : "bg-amber-400"}`}
+                    />
                   </div>
                 </div>
 
@@ -179,13 +191,17 @@ export default function ServerStatusCard() {
                 <div className="flex items-center justify-between py-1 px-1">
                   <div className="flex items-center gap-1.5">
                     <Globe className="h-3.5 w-3.5 text-neutral-400" />
-                    <span className="text-[11px] font-medium text-neutral-300">WebSocket Server</span>
+                    <span className="text-[11px] font-medium text-neutral-300">
+                      WebSocket Server
+                    </span>
                   </div>
                   <div className="flex items-center gap-1.5">
                     <span className="text-[9px] font-mono text-neutral-400">
                       {wsHealthy ? "Online" : "Booting"}
                     </span>
-                    <div className={`h-1.5 w-1.5 rounded-full ${wsHealthy ? "bg-emerald-400 animate-pulse" : "bg-amber-400"}`} />
+                    <div
+                      className={`h-1.5 w-1.5 rounded-full ${wsHealthy ? "bg-emerald-400 animate-pulse" : "bg-amber-400"}`}
+                    />
                   </div>
                 </div>
               </div>

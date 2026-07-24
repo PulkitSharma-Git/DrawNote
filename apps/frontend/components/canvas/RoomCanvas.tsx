@@ -36,18 +36,22 @@ export function RoomCanvas({ roomId }: { roomId: string }) {
     };
   }, [roomId]);
 
-  if (status === "connecting") return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-[#0b0d12] gap-3">
-      <FaSpinner className="text-white/30 text-2xl animate-spin" />
-      <p className="text-sm text-white/30">Connecting to room…</p>
-    </div>
-  );
+  if (status === "connecting")
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen bg-[#0b0d12] gap-3">
+        <FaSpinner className="text-white/30 text-2xl animate-spin" />
+        <p className="text-sm text-white/30">Connecting to room…</p>
+      </div>
+    );
 
-  if (status === "error") return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-[#0b0d12] gap-3">
-      <p className="text-sm text-red-400">Failed to connect. Please refresh or rejoin the room.</p>
-    </div>
-  );
+  if (status === "error")
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen bg-[#0b0d12] gap-3">
+        <p className="text-sm text-red-400">
+          Failed to connect. Please refresh or rejoin the room.
+        </p>
+      </div>
+    );
 
   return <Canvas roomId={roomId} socket={socket!} />;
 }

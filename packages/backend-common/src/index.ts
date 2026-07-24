@@ -12,7 +12,7 @@ dotenv.config({ path: path.resolve(process.cwd(), "../../.env") });
 if (!process.env.JWT_SECRET) {
   throw new Error(
     "FATAL: JWT_SECRET environment variable is not set. " +
-    "Set it in your .env file locally or in the Render dashboard for production."
+      "Set it in your .env file locally or in the Render dashboard for production.",
   );
 }
 

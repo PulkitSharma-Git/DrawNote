@@ -1,6 +1,6 @@
-import { WebSocket, WebSocketServer } from 'ws';
+import { WebSocket, WebSocketServer } from "ws";
 import jwt, { JwtPayload } from "jsonwebtoken";
-import { JWT_SECRET } from '@repo/backend-common/config';
+import { JWT_SECRET } from "@repo/backend-common/config";
 import { prismaClient } from "@repo/db/client";
 
 // For Render cold starts.
@@ -16,25 +16,33 @@ import { prismaClient } from "@repo/db/client";
 // and since express is not used thats why the code looks bulky
 
 //------------------------------------
-import { createServer } from 'http';
+import { createServer } from "http";
 
 const port = process.env.PORT ? parseInt(process.env.PORT) : 8080;
 
 const server = createServer((req, res) => {
   // Handle CORS headers
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS, HEAD');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Methods", "GET, OPTIONS, HEAD");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
 
-  if (req.method === 'OPTIONS') {
+  if (req.method === "OPTIONS") {
     res.writeHead(204);
     res.end();
     return;
   }
 
-  if (req.url === '/health' && (req.method === 'GET' || req.method === 'HEAD')) {
-    res.writeHead(200, { 'Content-Type': 'application/json' });
-    res.end(JSON.stringify({ status: "healthy", timestamp: new Date().toISOString() }));
+  if (
+    req.url === "/health" &&
+    (req.method === "GET" || req.method === "HEAD")
+  ) {
+    res.writeHead(200, { "Content-Type": "application/json" });
+    res.end(
+      JSON.stringify({
+        status: "healthy",
+        timestamp: new Date().toISOString(),
+      }),
+    );
   } else {
     res.writeHead(404);
     res.end();
@@ -84,25 +92,29 @@ function checkUser(token: string): string | null {
 
 async function broadcastRoomUsers(roomId: string) {
   // Find all currently connected sockets that have joined this room
-  const clientsInRoom = users.filter(u => u.rooms.includes(roomId));
-  
+  const clientsInRoom = users.filter((u) => u.rooms.includes(roomId));
+
   // Extract unique userIds
-  const uniqueUserIds = [...new Set(clientsInRoom.map(u => u.userId))];
+  const uniqueUserIds = [...new Set(clientsInRoom.map((u) => u.userId))];
 
   // Fetch from DB
   const dbUsers = await prismaClient.user.findMany({
     where: { id: { in: uniqueUserIds } },
-    select: { id: true, name: true, photo: true }
+    select: { id: true, name: true, photo: true },
   });
 
   // Broadcast to all clients in this room (including the sender so their UI updates)
-  const message = JSON.stringify({ type: "room_users", users: dbUsers, roomId });
-  clientsInRoom.forEach(client => {
+  const message = JSON.stringify({
+    type: "room_users",
+    users: dbUsers,
+    roomId,
+  });
+  clientsInRoom.forEach((client) => {
     client.ws.send(message);
   });
 }
 
-wss.on('connection', function connection(ws, request) {
+wss.on("connection", function connection(ws, request) {
   const url = request.url;
   if (!url) {
     ws.close();
@@ -110,8 +122,8 @@ wss.on('connection', function connection(ws, request) {
   }
 
   // Extract the token from the query string: ws://host?token=xxx
-  const queryParams = new URLSearchParams(url.split('?')[1]);
-  const token = queryParams.get('token') || "";
+  const queryParams = new URLSearchParams(url.split("?")[1]);
+  const token = queryParams.get("token") || "";
   const userId = checkUser(token);
 
   // Reject the connection immediately if the token is invalid.
@@ -128,7 +140,7 @@ wss.on('connection', function connection(ws, request) {
     ws,
   });
 
-  ws.on('message', async function message(data) {
+  ws.on("message", async function message(data) {
     let parsedData: any;
 
     // Safely parse the incoming JSON message — malformed JSON should not crash the server
@@ -140,7 +152,7 @@ wss.on('connection', function connection(ws, request) {
     }
 
     if (parsedData.type === "join_room") {
-      const user = users.find(x => x.ws === ws);
+      const user = users.find((x) => x.ws === ws);
       if (!user) return;
 
       // Normalize roomId to a string so comparisons are always consistent.
@@ -155,14 +167,14 @@ wss.on('connection', function connection(ws, request) {
     }
 
     if (parsedData.type === "leave_room") {
-      const user = users.find(x => x.ws === ws);
+      const user = users.find((x) => x.ws === ws);
       if (!user) return;
 
       const roomId = String(parsedData.roomId);
 
       // Bug fix: was `=== parsedData.room` which kept the leaving room and
       // removed everything else. Correct behaviour is to EXCLUDE the leaving room.
-      user.rooms = user.rooms.filter(x => x !== roomId);
+      user.rooms = user.rooms.filter((x) => x !== roomId);
       broadcastRoomUsers(roomId);
     }
 
@@ -182,13 +194,15 @@ wss.on('connection', function connection(ws, request) {
 
       // Broadcast to all other users who have joined this room.
       // Skip the sender (user.ws !== ws).
-      users.forEach(user => {
+      users.forEach((user) => {
         if (user.rooms.includes(roomId) && user.ws !== ws) {
-          user.ws.send(JSON.stringify({
-            type: "chat",
-            message,
-            roomId,
-          }));
+          user.ws.send(
+            JSON.stringify({
+              type: "chat",
+              message,
+              roomId,
+            }),
+          );
         }
       });
     }
@@ -201,21 +215,25 @@ wss.on('connection', function connection(ws, request) {
       const roomChats = await prismaClient.chat.findMany({
         where: { roomId: Number(roomId) },
       });
-      const chatToDelete = roomChats.find(chat => chat.message.includes(shapeId));
-      
+      const chatToDelete = roomChats.find((chat) =>
+        chat.message.includes(shapeId),
+      );
+
       if (chatToDelete) {
         await prismaClient.chat.delete({
-          where: { id: chatToDelete.id }
+          where: { id: chatToDelete.id },
         });
       }
 
-      users.forEach(user => {
+      users.forEach((user) => {
         if (user.rooms.includes(roomId) && user.ws !== ws) {
-          user.ws.send(JSON.stringify({
-            type: "erase",
-            shapeId,
-            roomId,
-          }));
+          user.ws.send(
+            JSON.stringify({
+              type: "erase",
+              shapeId,
+              roomId,
+            }),
+          );
         }
       });
     }
@@ -229,22 +247,26 @@ wss.on('connection', function connection(ws, request) {
       const roomChats = await prismaClient.chat.findMany({
         where: { roomId: Number(roomId) },
       });
-      const chatToUpdate = roomChats.find(chat => chat.message.includes(shapeId));
-      
+      const chatToUpdate = roomChats.find((chat) =>
+        chat.message.includes(shapeId),
+      );
+
       if (chatToUpdate) {
         await prismaClient.chat.update({
           where: { id: chatToUpdate.id },
-          data: { message }
+          data: { message },
         });
       }
 
-      users.forEach(user => {
+      users.forEach((user) => {
         if (user.rooms.includes(roomId) && user.ws !== ws) {
-          user.ws.send(JSON.stringify({
-            type: "update",
-            message,
-            roomId,
-          }));
+          user.ws.send(
+            JSON.stringify({
+              type: "update",
+              message,
+              roomId,
+            }),
+          );
         }
       });
     }
@@ -253,14 +275,14 @@ wss.on('connection', function connection(ws, request) {
   // Clean up: remove the user from the registry when they disconnect.
   // Without this, the users array grows forever and disconnected sockets
   // accumulate, causing memory leaks and stale broadcast attempts.
-  ws.on('close', () => {
-    const index = users.findIndex(x => x.ws === ws);
+  ws.on("close", () => {
+    const index = users.findIndex((x) => x.ws === ws);
     if (index !== -1) {
       const user = users[index];
       if (user) {
         const userRooms = [...user.rooms];
         users.splice(index, 1);
-        userRooms.forEach(roomId => broadcastRoomUsers(roomId));
+        userRooms.forEach((roomId) => broadcastRoomUsers(roomId));
       }
     }
   });

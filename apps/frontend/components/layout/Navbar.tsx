@@ -1,10 +1,10 @@
 "use client";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { Button } from "./Button";
-import { Button2 } from "./Button2";
+import { Button } from "../ui/Button";
+import { Button2 } from "../ui/Button2";
 import { IoPersonCircleOutline } from "react-icons/io5";
-import UserDetails from "./UserDetails";
+import UserDetails from "../dashboard/UserDetails";
 import axios from "axios";
 import { HTTP_BACKEND } from "@/config";
 import { motion, AnimatePresence } from "framer-motion";
@@ -43,8 +43,14 @@ const Navbar = () => {
     >
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6">
         {/* Logo */}
-        <Link href="/" className="text-xl font-extrabold tracking-wide text-white">
-          Draw<span className="bg-gradient-to-r from-orange-400 via-red-500 to-blue-500 bg-clip-text text-transparent">Note</span>
+        <Link
+          href="/"
+          className="text-xl font-extrabold tracking-wide text-white"
+        >
+          Draw
+          <span className="bg-gradient-to-r from-orange-400 via-red-500 to-blue-500 bg-clip-text text-transparent">
+            Note
+          </span>
         </Link>
 
         {/* Right side */}
@@ -75,8 +81,12 @@ const Navbar = () => {
           </div>
         ) : (
           <div className="flex items-center gap-3">
-            <Link href="/signin"><Button2>Sign In</Button2></Link>
-            <Link href="/signup"><Button>Get Started</Button></Link>
+            <Link href="/signin">
+              <Button2>Sign In</Button2>
+            </Link>
+            <Link href="/signup">
+              <Button>Get Started</Button>
+            </Link>
           </div>
         )}
       </div>

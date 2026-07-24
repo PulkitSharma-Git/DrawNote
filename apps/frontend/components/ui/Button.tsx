@@ -7,7 +7,12 @@ interface ButtonProps {
   type?: "button" | "submit" | "reset";
 }
 
-export function Button({ children, onClick, className, type = "button" }: ButtonProps) {
+export function Button({
+  children,
+  onClick,
+  className,
+  type = "button",
+}: ButtonProps) {
   return (
     <button
       type={type}
@@ -37,9 +42,7 @@ export function Button({ children, onClick, className, type = "button" }: Button
       />
 
       {/* Button content */}
-      <span className="relative z-10 flex items-center gap-2">
-        {children}
-      </span>
+      <span className="relative z-10 flex items-center gap-2">{children}</span>
     </button>
   );
 }

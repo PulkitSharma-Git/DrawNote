@@ -3,11 +3,11 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
 import { FaSpinner } from "react-icons/fa";
-import PageLayout from "@/components/PageLayout";
-import Rooms from "@/components/Rooms";
-import Room from "@/components/Room";
-import { Button } from "@/components/Button";
-import NewRoomModal from "@/components/NewRoomModal";
+import PageLayout from "@/components/layout/PageLayout";
+import Rooms from "@/components/dashboard/Rooms";
+import Room from "@/components/dashboard/Room";
+import { Button } from "@/components/ui/Button";
+import NewRoomModal from "@/components/dashboard/NewRoomModal";
 import { HTTP_BACKEND } from "@/config";
 
 interface RoomType {
@@ -25,11 +25,17 @@ export default function JoinPage() {
 
   useEffect(() => {
     const token = localStorage.getItem("token");
-    if (!token) { router.replace("/signin"); return; }
+    if (!token) {
+      router.replace("/signin");
+      return;
+    }
 
     axios
       .get(`${HTTP_BACKEND}/getRooms`, { headers: { Authorization: token } })
-      .then(({ data }) => { setRooms(data.rooms ?? []); setStatus("success"); })
+      .then(({ data }) => {
+        setRooms(data.rooms ?? []);
+        setStatus("success");
+      })
       .catch(() => setStatus("error"));
   }, [router]);
 
@@ -39,7 +45,7 @@ export default function JoinPage() {
 
     try {
       await axios.delete(`${HTTP_BACKEND}/room/${roomId}`, {
-        headers: { Authorization: token }
+        headers: { Authorization: token },
       });
       setRooms((prev) => prev.filter((r) => r.id !== roomId));
     } catch (e) {
@@ -49,17 +55,24 @@ export default function JoinPage() {
   };
 
   const renderRooms = () => {
-    if (status === "loading") return (
-      <div className="flex justify-center py-16">
-        <FaSpinner className="text-white/40 text-2xl animate-spin" />
-      </div>
-    );
-    if (status === "error") return (
-      <p className="text-center text-sm text-red-400 py-10">Failed to fetch rooms. Please try again.</p>
-    );
-    if (rooms.length === 0) return (
-      <p className="text-center text-sm text-white/30 py-10">No rooms yet — create one above to get started.</p>
-    );
+    if (status === "loading")
+      return (
+        <div className="flex justify-center py-16">
+          <FaSpinner className="text-white/40 text-2xl animate-spin" />
+        </div>
+      );
+    if (status === "error")
+      return (
+        <p className="text-center text-sm text-red-400 py-10">
+          Failed to fetch rooms. Please try again.
+        </p>
+      );
+    if (rooms.length === 0)
+      return (
+        <p className="text-center text-sm text-white/30 py-10">
+          No rooms yet — create one above to get started.
+        </p>
+      );
     return (
       <Rooms>
         {rooms.map((room) => (
@@ -80,19 +93,25 @@ export default function JoinPage() {
       <div className="pt-28 pb-20 max-w-6xl mx-auto px-6 relative z-10">
         {/* Header & Actions */}
         <div className="flex items-center justify-between border-b border-white/5 pb-5 mb-8">
-          <h1 className="text-2xl font-bold tracking-tight text-white">Your Rooms</h1>
-          <Button onClick={() => setIsModalOpen(true)} className="!py-2.5 !px-5 text-sm">
+          <h1 className="text-2xl font-bold tracking-tight text-white">
+            Your Rooms
+          </h1>
+          <Button
+            onClick={() => setIsModalOpen(true)}
+            className="!py-2.5 !px-5 text-sm"
+          >
             <span className="text-base font-bold mr-1">+</span> New Room
           </Button>
         </div>
 
         {/* Rooms List */}
-        <section>
-          {renderRooms()}
-        </section>
+        <section>{renderRooms()}</section>
 
         {/* New Room Modal */}
-        <NewRoomModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
+        <NewRoomModal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+        />
       </div>
     </PageLayout>
   );

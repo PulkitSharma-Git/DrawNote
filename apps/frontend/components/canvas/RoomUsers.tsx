@@ -31,26 +31,29 @@ export function RoomUsers({ users }: { users: RoomUser[] }) {
 
   return (
     <div className="absolute top-4 right-4 z-50 flex flex-col items-end gap-2">
-      <button 
+      <button
         onClick={() => setIsOpen(!isOpen)}
         className="flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-[#0b0d12]/80 backdrop-blur-sm border border-white/10 shadow-xl shadow-black/40 text-white/70 hover:text-white transition-all hover:bg-white/5"
-        style={{ willChange: 'transform', transform: 'translateZ(0)' }}
+        style={{ willChange: "transform", transform: "translateZ(0)" }}
       >
         <FaUsers className="size-5" />
         <span className="text-sm font-medium">{users.length}</span>
       </button>
-      
+
       {isOpen && (
-        <div 
+        <div
           className="p-2 rounded-2xl bg-[#0b0d12]/80 backdrop-blur-sm border border-white/10 shadow-xl shadow-black/40 flex flex-col gap-1 min-w-[200px]"
-          style={{ willChange: 'transform', transform: 'translateZ(0)' }}
+          style={{ willChange: "transform", transform: "translateZ(0)" }}
         >
           <div className="px-2 py-1 mb-1 text-xs font-semibold text-white/40 uppercase tracking-wider">
             People in Room
           </div>
-          {users.map(u => (
-            <div key={u.id} className="flex items-center gap-3 px-2 py-1.5 rounded-xl hover:bg-white/5 transition-colors cursor-default">
-              <div 
+          {users.map((u) => (
+            <div
+              key={u.id}
+              className="flex items-center gap-3 px-2 py-1.5 rounded-xl hover:bg-white/5 transition-colors cursor-default"
+            >
+              <div
                 className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold border ${getAvatarColor(u.id)}`}
               >
                 {/* Future: If avatars are introduced, replace this initials fallback with an image tag rendering u.photo */}
@@ -62,7 +65,9 @@ export function RoomUsers({ users }: { users: RoomUser[] }) {
             </div>
           ))}
           {users.length === 0 && (
-            <div className="px-2 py-3 text-sm text-white/40 text-center italic">Waiting for others...</div>
+            <div className="px-2 py-3 text-sm text-white/40 text-center italic">
+              Waiting for others...
+            </div>
           )}
         </div>
       )}

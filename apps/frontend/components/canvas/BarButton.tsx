@@ -14,9 +14,10 @@ export function BarButton({ icon, label, activate, onClick }: BarButtonProps) {
       onClick={onClick}
       title={label}
       className={`relative group flex items-center justify-center w-9 h-9 rounded-xl transition-all duration-200
-        ${activate
-          ? "bg-white/15 text-white border border-white/20"
-          : "text-white/40 hover:text-white/80 hover:bg-white/8"
+        ${
+          activate
+            ? "bg-white/15 text-white border border-white/20"
+            : "text-white/40 hover:text-white/80 hover:bg-white/8"
         }`}
     >
       {/* Active glow */}

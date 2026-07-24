@@ -9,7 +9,12 @@ interface CustomModalProps {
   children: React.ReactNode;
 }
 
-export default function CustomModal({ isOpen, onClose, title, children }: CustomModalProps) {
+export default function CustomModal({
+  isOpen,
+  onClose,
+  title,
+  children,
+}: CustomModalProps) {
   const modalRef = useRef<HTMLDivElement>(null);
 
   // Close on Escape key press
@@ -67,9 +72,7 @@ export default function CustomModal({ isOpen, onClose, title, children }: Custom
         </div>
 
         {/* Content */}
-        <div className="relative">
-          {children}
-        </div>
+        <div className="relative">{children}</div>
       </div>
     </div>
   );

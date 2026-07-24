@@ -1,7 +1,15 @@
 "use client";
 import { useEffect, useRef } from "react";
 
-const COLORS = ["#FF6B6B", "#FFD93D", "#6BCB77", "#4D96FF", "#FF6FF7", "#FFA500", "#8E44AD"];
+const COLORS = [
+  "#FF6B6B",
+  "#FFD93D",
+  "#6BCB77",
+  "#4D96FF",
+  "#FF6FF7",
+  "#FFA500",
+  "#8E44AD",
+];
 
 const rand = (min: number, max: number) => min + Math.random() * (max - min);
 const pick = <T,>(arr: T[]) => arr[Math.floor(Math.random() * arr.length)];
@@ -9,19 +17,26 @@ const pick = <T,>(arr: T[]) => arr[Math.floor(Math.random() * arr.length)];
 // ── Types ──────────────────────────────────────────────────────────────────────
 
 type Ball = {
-  x: number; y: number;
-  vx: number; vy: number;
-  size: number; color: string;
+  x: number;
+  y: number;
+  vx: number;
+  vy: number;
+  size: number;
+  color: string;
 };
 
 type ShapeType = "circle" | "square" | "triangle";
 type Shape = {
   type: ShapeType;
   size: number;
-  x: number; y: number;
-  vx: number; vy: number;
-  rotate: number; vr: number;
-  color: string; outline: boolean;
+  x: number;
+  y: number;
+  vx: number;
+  vy: number;
+  rotate: number;
+  vr: number;
+  color: string;
+  outline: boolean;
 };
 
 // ── Constants ──────────────────────────────────────────────────────────────────
@@ -35,7 +50,9 @@ const SHAPE_TYPES: ShapeType[] = ["circle", "square", "triangle"];
 
 function flashGlow(el: HTMLDivElement, color: string) {
   el.style.boxShadow = `0 0 16px ${color}`;
-  setTimeout(() => { el.style.boxShadow = "none"; }, 150);
+  setTimeout(() => {
+    el.style.boxShadow = "none";
+  }, 150);
 }
 
 // ── Style appliers (called once on init for static props) ─────────────────────
@@ -73,7 +90,9 @@ function initShapeEl(el: HTMLDivElement, shape: Shape) {
     el.style.height = "0";
     el.style.borderLeft = `${size / 2}px solid transparent`;
     el.style.borderRight = `${size / 2}px solid transparent`;
-    el.style.borderBottom = outline ? `${size}px solid transparent` : `${size}px solid ${color}`;
+    el.style.borderBottom = outline
+      ? `${size}px solid transparent`
+      : `${size}px solid ${color}`;
     if (outline) el.style.boxShadow = `inset 0 0 0 2px ${color}`;
     el.style.filter = "blur(1.5px)";
   }
@@ -93,7 +112,9 @@ export default function BackgroundAnimation() {
     if (!container) return;
 
     let bounds = container.getBoundingClientRect();
-    const onResize = () => { bounds = container.getBoundingClientRect(); };
+    const onResize = () => {
+      bounds = container.getBoundingClientRect();
+    };
     window.addEventListener("resize", onResize);
 
     // Init balls
@@ -131,8 +152,14 @@ export default function BackgroundAnimation() {
         ball.x += ball.vx;
         ball.y += ball.vy;
         const el = ballEls.current[i]!;
-        if (ball.x <= 0 || ball.x + ball.size >= bounds.width) { ball.vx *= -1; flashGlow(el, ball.color); }
-        if (ball.y <= 0 || ball.y + ball.size >= bounds.height) { ball.vy *= -1; flashGlow(el, ball.color); }
+        if (ball.x <= 0 || ball.x + ball.size >= bounds.width) {
+          ball.vx *= -1;
+          flashGlow(el, ball.color);
+        }
+        if (ball.y <= 0 || ball.y + ball.size >= bounds.height) {
+          ball.vy *= -1;
+          flashGlow(el, ball.color);
+        }
         el.style.transform = `translate(${ball.x}px, ${ball.y}px)`;
       });
 
@@ -141,9 +168,12 @@ export default function BackgroundAnimation() {
         shape.x += shape.vx;
         shape.y += shape.vy;
         shape.rotate += shape.vr;
-        if (shape.x <= 0 || shape.x + shape.size >= bounds.width) shape.vx *= -1;
-        if (shape.y <= 0 || shape.y + shape.size >= bounds.height) shape.vy *= -1;
-        shapeEls.current[i]!.style.transform = `translate(${shape.x}px, ${shape.y}px) rotate(${shape.rotate}deg)`;
+        if (shape.x <= 0 || shape.x + shape.size >= bounds.width)
+          shape.vx *= -1;
+        if (shape.y <= 0 || shape.y + shape.size >= bounds.height)
+          shape.vy *= -1;
+        shapeEls.current[i]!.style.transform =
+          `translate(${shape.x}px, ${shape.y}px) rotate(${shape.rotate}deg)`;
       });
 
       raf = requestAnimationFrame(animate);
@@ -157,12 +187,25 @@ export default function BackgroundAnimation() {
   }, []);
 
   return (
-    <div ref={containerRef} className="absolute inset-0 z-[1] pointer-events-none">
+    <div
+      ref={containerRef}
+      className="absolute inset-0 z-[1] pointer-events-none"
+    >
       {Array.from({ length: BALL_COUNT }, (_, i) => (
-        <div key={`ball-${i}`} ref={(el) => { if (el) ballEls.current[i] = el; }} />
+        <div
+          key={`ball-${i}`}
+          ref={(el) => {
+            if (el) ballEls.current[i] = el;
+          }}
+        />
       ))}
       {Array.from({ length: SHAPE_COUNT }, (_, i) => (
-        <div key={`shape-${i}`} ref={(el) => { if (el) shapeEls.current[i] = el; }} />
+        <div
+          key={`shape-${i}`}
+          ref={(el) => {
+            if (el) shapeEls.current[i] = el;
+          }}
+        />
       ))}
     </div>
   );

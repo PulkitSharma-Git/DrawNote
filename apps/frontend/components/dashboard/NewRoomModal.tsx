@@ -3,10 +3,10 @@ import React, { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
 import { HTTP_BACKEND } from "@/config";
-import { Button } from "@/components/Button";
-import { Input1 } from "@/components/Input1";
+import { Button } from "@/components/ui/Button";
+import { Input } from "@/components/ui/Input";
 import { FaSpinner } from "react-icons/fa";
-import CustomModal from "./CustomModal";
+import CustomModal from "../ui/CustomModal";
 
 interface NewRoomModalProps {
   isOpen: boolean;
@@ -42,10 +42,14 @@ export default function NewRoomModal({ isOpen, onClose }: NewRoomModalProps) {
     if (e) {
       e.preventDefault();
     }
-    
+
     const value = roomRef.current?.value.trim();
     if (!value) {
-      setError(tab === "create" ? "Room name cannot be empty." : "Room ID cannot be empty.");
+      setError(
+        tab === "create"
+          ? "Room name cannot be empty."
+          : "Room ID cannot be empty.",
+      );
       return;
     }
     setError("");
@@ -63,7 +67,7 @@ export default function NewRoomModal({ isOpen, onClose }: NewRoomModalProps) {
         const { data } = await axios.post(
           `${HTTP_BACKEND}/room`,
           { name: value },
-          { headers: { authorization: token } }
+          { headers: { authorization: token } },
         );
         router.push(`/canvas/${data.roomId}`);
       } else {
@@ -83,13 +87,19 @@ export default function NewRoomModal({ isOpen, onClose }: NewRoomModalProps) {
         router.push(`/canvas/${data.room.id}`);
       }
     } catch {
-      setError(tab === "create" ? "Failed to create room." : "Error checking room.");
+      setError(
+        tab === "create" ? "Failed to create room." : "Error checking room.",
+      );
       setLoading(false);
     }
   }
 
   return (
-    <CustomModal isOpen={isOpen} onClose={handleClose} title="Create or Join Room">
+    <CustomModal
+      isOpen={isOpen}
+      onClose={handleClose}
+      title="Create or Join Room"
+    >
       <div className="space-y-6">
         {/* Tabs */}
         <div className="grid grid-cols-2 rounded-xl bg-white/[0.04] border border-white/10 p-1">
@@ -125,7 +135,7 @@ export default function NewRoomModal({ isOpen, onClose }: NewRoomModalProps) {
                 <label className="block text-xs font-semibold text-white/50 uppercase tracking-wider">
                   Room Name
                 </label>
-                <Input1
+                <Input
                   ref={roomRef}
                   type="text"
                   placeholder="e.g. Team Planning"
@@ -134,7 +144,11 @@ export default function NewRoomModal({ isOpen, onClose }: NewRoomModalProps) {
               </div>
               {error && <p className="text-xs text-red-400">{error}</p>}
               <Button type="submit" className="w-full h-11 disabled:opacity-60">
-                {loading ? <FaSpinner className="animate-spin" /> : "Create Room"}
+                {loading ? (
+                  <FaSpinner className="animate-spin" />
+                ) : (
+                  "Create Room"
+                )}
               </Button>
             </div>
           ) : (
@@ -143,7 +157,7 @@ export default function NewRoomModal({ isOpen, onClose }: NewRoomModalProps) {
                 <label className="block text-xs font-semibold text-white/50 uppercase tracking-wider">
                   Room ID
                 </label>
-                <Input1
+                <Input
                   ref={roomRef}
                   type="text"
                   placeholder="e.g. 42"

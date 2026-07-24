@@ -1,7 +1,13 @@
 // Room.tsx
 "use client";
 import { useState } from "react";
-import { IoCopyOutline, IoCheckmarkOutline, IoArrowForward, IoTrashOutline, IoShareSocialOutline } from "react-icons/io5";
+import {
+  IoCopyOutline,
+  IoCheckmarkOutline,
+  IoArrowForward,
+  IoTrashOutline,
+  IoShareSocialOutline,
+} from "react-icons/io5";
 
 interface RoomProps {
   roomname: string;
@@ -10,7 +16,12 @@ interface RoomProps {
   onDelete?: (roomId: string) => void;
 }
 
-export default function Room({ roomname, roomId, onClick, onDelete }: RoomProps) {
+export default function Room({
+  roomname,
+  roomId,
+  onClick,
+  onDelete,
+}: RoomProps) {
   const [copiedId, setCopiedId] = useState(false);
   const [copiedLink, setCopiedLink] = useState(false);
 
@@ -51,7 +62,9 @@ export default function Room({ roomname, roomId, onClick, onDelete }: RoomProps)
         {/* Header */}
         <div className="flex items-center justify-between gap-3">
           <div className="flex-1 min-w-0">
-            <h2 className="text-base font-bold text-white tracking-tight truncate">{roomname}</h2>
+            <h2 className="text-base font-bold text-white tracking-tight truncate">
+              {roomname}
+            </h2>
           </div>
           {/* Arrow */}
           <div className="shrink-0 flex items-center justify-center h-8 w-8 rounded-lg bg-white/5 border border-white/10 text-white/30 group-hover:text-white group-hover:border-white/20 transition-all duration-200">
@@ -64,7 +77,9 @@ export default function Room({ roomname, roomId, onClick, onDelete }: RoomProps)
 
         {/* Footer — Actions */}
         <div className="flex items-center justify-between gap-2">
-          <span className="text-[10px] text-white/25 font-mono tracking-wider truncate">{roomId}</span>
+          <span className="text-[10px] text-white/25 font-mono tracking-wider truncate">
+            {roomId}
+          </span>
           <div className="flex items-center gap-3">
             {onDelete && (
               <button
@@ -79,19 +94,31 @@ export default function Room({ roomname, roomId, onClick, onDelete }: RoomProps)
               onClick={copyLink}
               className="shrink-0 flex items-center gap-1.5 text-xs text-white/30 hover:text-white/70 transition-colors duration-200"
             >
-              {copiedLink
-                ? <><IoCheckmarkOutline className="h-3.5 w-3.5 text-green-400" /></>
-                : <><IoShareSocialOutline className="h-3.5 w-3.5" /></>
-              }
+              {copiedLink ? (
+                <>
+                  <IoCheckmarkOutline className="h-3.5 w-3.5 text-green-400" />
+                </>
+              ) : (
+                <>
+                  <IoShareSocialOutline className="h-3.5 w-3.5" />
+                </>
+              )}
             </button>
             <button
               onClick={copyId}
               className="shrink-0 flex items-center gap-1.5 text-xs text-white/30 hover:text-white/70 transition-colors duration-200"
             >
-              {copiedId
-                ? <><IoCheckmarkOutline className="h-3.5 w-3.5 text-green-400" /><span className="text-green-400 font-medium">Copied</span></>
-                : <><IoCopyOutline className="h-3.5 w-3.5" /><span>Copy ID</span></>
-              }
+              {copiedId ? (
+                <>
+                  <IoCheckmarkOutline className="h-3.5 w-3.5 text-green-400" />
+                  <span className="text-green-400 font-medium">Copied</span>
+                </>
+              ) : (
+                <>
+                  <IoCopyOutline className="h-3.5 w-3.5" />
+                  <span>Copy ID</span>
+                </>
+              )}
             </button>
           </div>
         </div>

@@ -22,7 +22,7 @@ export default function AuthLayout({
         key={pathname}
         initial={{
           opacity: 0,
-          x: 48,      // start slightly right
+          x: 48, // start slightly right
           scale: 0.98,
         }}
         animate={{
@@ -32,7 +32,7 @@ export default function AuthLayout({
         }}
         exit={{
           opacity: 0,
-          x: -48,     // exit to left
+          x: -48, // exit to left
           scale: 0.98,
         }}
         transition={{

@@ -2,7 +2,6 @@
   <img width="412" height="139" alt="Screenshot" src="https://github.com/user-attachments/assets/002c5551-da16-4c91-808b-c0944d41944b" />
 </p>
 
-
 <p align="center">
 
 <img src="https://img.shields.io/badge/Next.js-000000?logo=nextdotjs&logoColor=white">
@@ -41,8 +40,8 @@ https://drawnote1.vercel.app
 ---
 
 # 🎥 Demo
-https://github.com/user-attachments/assets/b73a10b1-fb4f-4b8a-b7e7-c6e9a76b5d33
 
+https://github.com/user-attachments/assets/b73a10b1-fb4f-4b8a-b7e7-c6e9a76b5d33
 
 ---
 
@@ -54,24 +53,26 @@ https://github.com/user-attachments/assets/b73a10b1-fb4f-4b8a-b7e7-c6e9a76b5d33
 
 <img width="1440" height="805" alt="Screenshot 2026-03-12 at 6 06 04 PM" src="https://github.com/user-attachments/assets/ba34cbcb-0c16-42af-a76a-9d122746c20c" />
 
-
 <img width="1440" height="816" alt="Screenshot 2026-03-12 at 7 37 24 PM" src="https://github.com/user-attachments/assets/d67ce923-fcb0-4e41-be7c-8e4738743875" />
-
 
 ---
 
 # ✨ Features
 
 ### 🎨 Real-Time Collaboration
+
 Multiple users can draw simultaneously with instant synchronization.
 
 ### 🌌 Infinite Canvas
+
 Users can draw without boundaries using a dynamically expanding canvas.
 
 ### 🏠 Persistent Room System
+
 Rooms have permanent links and stored drawing history.
 
 ### 🧠 Event Persistence
+
 All drawing events are stored in the database and replayed when new users join.
 
 ### 🖌 Drawing Tools
@@ -89,9 +90,11 @@ All drawing events are stored in the database and replayed when new users join.
 - And More
 
 ### 👥 Multi-User Synchronization
+
 Drawing updates are broadcast instantly to all users in the room.
 
 ### 🔒 Secure Authentication
+
 JWT-based authentication protects room access.
 
 ---
@@ -209,7 +212,7 @@ Redis --> WS2
 
 • Load balancers distribute traffic  
 • Multiple WebSocket servers handle concurrent connections  
-• Redis Pub/Sub synchronizes events across servers  
+• Redis Pub/Sub synchronizes events across servers
 
 This architecture enables DrawNote to scale to **thousands of concurrent users**.
 
@@ -328,7 +331,7 @@ This launches:
 
 • Next.js frontend  
 • HTTP backend  
-• WebSocket server  
+• WebSocket server
 
 ---
 

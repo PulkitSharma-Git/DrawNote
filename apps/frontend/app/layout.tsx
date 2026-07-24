@@ -11,7 +11,8 @@ const jakarta = Plus_Jakarta_Sans({
 
 export const metadata: Metadata = {
   title: "DrawNote",
-  description: "A real-time collaborative whiteboard for teams, creators, and fast-moving ideas.",
+  description:
+    "A real-time collaborative whiteboard for teams, creators, and fast-moving ideas.",
 };
 
 export default function RootLayout({

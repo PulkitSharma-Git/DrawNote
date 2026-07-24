@@ -20,9 +20,7 @@ export function SignInCard({
           <h2 className="text-3xl font-semibold text-white tracking-tight">
             {title}
           </h2>
-          {subtitle && (
-            <p className="text-sm text-white/60">{subtitle}</p>
-          )}
+          {subtitle && <p className="text-sm text-white/60">{subtitle}</p>}
         </div>
 
         <div className="flex flex-col gap-4">{children}</div>

@@ -3,8 +3,8 @@ import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
 import { HTTP_BACKEND } from "@/config";
-import { Button } from "@/components/Button";
-import { Input1 } from "@/components/Input1";
+import { Button } from "@/components/ui/Button";
+import { Input } from "@/components/ui/Input";
 import { FaSpinner } from "react-icons/fa";
 
 type Tab = "create" | "join";
@@ -19,7 +19,11 @@ export function RoomForm() {
   async function handleSubmit() {
     const value = roomRef.current?.value.trim();
     if (!value) {
-      setError(tab === "create" ? "Room name cannot be empty." : "Room ID cannot be empty.");
+      setError(
+        tab === "create"
+          ? "Room name cannot be empty."
+          : "Room ID cannot be empty.",
+      );
       return;
     }
     setError("");
@@ -42,7 +46,7 @@ export function RoomForm() {
         const { data } = await axios.post(
           `${HTTP_BACKEND}/room`,
           { name: value },
-          { headers: { authorization: token } }
+          { headers: { authorization: token } },
         );
         router.push(`/canvas/${data.roomId}`);
       } else {
@@ -63,7 +67,9 @@ export function RoomForm() {
         router.push(`/canvas/${data.room.id}`);
       }
     } catch {
-      setError(tab === "create" ? "Failed to create room." : "Error checking room.");
+      setError(
+        tab === "create" ? "Failed to create room." : "Error checking room.",
+      );
       setLoading(false);
     }
   }
@@ -75,7 +81,11 @@ export function RoomForm() {
         {(["create", "join"] as Tab[]).map((t) => (
           <button
             key={t}
-            onClick={() => { setTab(t); setError(""); if (roomRef.current) roomRef.current.value = ""; }}
+            onClick={() => {
+              setTab(t);
+              setError("");
+              if (roomRef.current) roomRef.current.value = "";
+            }}
             className={`flex-1 py-2 text-sm font-medium rounded-lg transition-all duration-200
               ${tab === t ? "bg-white/10 text-white shadow-sm" : "text-white/40 hover:text-white/70"}`}
           >
@@ -98,7 +108,7 @@ export function RoomForm() {
 
       {/* Input */}
       <div className="space-y-2">
-        <Input1
+        <Input
           ref={roomRef}
           type="text"
           placeholder={tab === "create" ? "Room name" : "Room ID"}
@@ -108,10 +118,17 @@ export function RoomForm() {
       </div>
 
       {/* CTA */}
-      <Button onClick={handleSubmit} className="w-full h-11 disabled:opacity-60">
-        {loading
-          ? <FaSpinner className="animate-spin" />
-          : tab === "create" ? "Create Room →" : "Join Room →"}
+      <Button
+        onClick={handleSubmit}
+        className="w-full h-11 disabled:opacity-60"
+      >
+        {loading ? (
+          <FaSpinner className="animate-spin" />
+        ) : tab === "create" ? (
+          "Create Room →"
+        ) : (
+          "Join Room →"
+        )}
       </Button>
     </div>
   );

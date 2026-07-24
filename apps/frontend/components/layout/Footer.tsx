@@ -61,7 +61,8 @@ const Footer = () => (
         <div className="text-center md:text-left">
           <Logo />
           <p className="mt-2 max-w-xs text-sm text-gray-400">
-            A real-time collaborative whiteboard for teams, creators, and fast-moving ideas.
+            A real-time collaborative whiteboard for teams, creators, and
+            fast-moving ideas.
           </p>
         </div>
         <NavLinks />
