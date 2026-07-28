@@ -6,12 +6,13 @@ import PageLayout from "@/components/layout/PageLayout";
 import Rooms from "@/components/dashboard/Rooms";
 import Room from "@/components/dashboard/Room";
 import RoomSkeleton from "@/components/dashboard/RoomSkeleton";
+import EmptyState from "@/components/dashboard/EmptyState";
 import { Button } from "@/components/ui/Button";
 import NewRoomModal from "@/components/dashboard/NewRoomModal";
 import { HTTP_BACKEND } from "@/config";
 
 interface RoomType {
-  id: string;
+  id: string | number;
   slug: string;
 }
 
@@ -47,7 +48,7 @@ export default function JoinPage() {
       await axios.delete(`${HTTP_BACKEND}/room/${roomId}`, {
         headers: { Authorization: token },
       });
-      setRooms((prev) => prev.filter((r) => r.id !== roomId));
+      setRooms((prev) => prev.filter((r) => String(r.id) !== String(roomId)));
     } catch (e) {
       console.error("Failed to delete room:", e);
       alert("Failed to delete room. Please try again.");
@@ -70,17 +71,13 @@ export default function JoinPage() {
         </p>
       );
     if (rooms.length === 0)
-      return (
-        <p className="text-center text-sm text-white/30 py-10">
-          No rooms yet — create one above to get started.
-        </p>
-      );
+      return <EmptyState />;
     return (
       <Rooms>
         {rooms.map((room) => (
           <Room
             key={room.id}
-            roomId={room.id}
+            roomId={String(room.id)}
             roomname={room.slug}
             onClick={() => router.push(`/canvas/${room.id}`)}
             onDelete={handleDeleteRoom}
@@ -105,6 +102,7 @@ export default function JoinPage() {
             <span className="text-base font-bold mr-1">+</span> New Room
           </Button>
         </div>
+
 
         {/* Rooms List */}
         <section>{renderRooms()}</section>

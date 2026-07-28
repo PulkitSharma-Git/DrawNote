@@ -52,6 +52,7 @@ export function Canvas({
   const [game, setGame] = useState<Game>();
   const [selected, setSelected] = useState<Tool>("circle");
   const [selectColor, setselectColor] = useState<Color>("white");
+  const [selectThickness, setSelectThickness] = useState<number>(2);
   const [zoom, setZoom] = useState(1);
 
   const [roomUsers, setRoomUsers] = useState<RoomUser[]>([]);
@@ -79,11 +80,12 @@ export function Canvas({
     return () => g.destroy();
   }, [roomId, socket]);
 
-  // Sync tool + color
+  // Sync tool + color + thickness
   useEffect(() => {
     game?.setTool(selected);
     game?.setColor(selectColor);
-  }, [selected, selectColor, game]);
+    game?.setThickness(selectThickness);
+  }, [selected, selectColor, selectThickness, game]);
 
   // Resize canvas to fill viewport
   useEffect(() => {
@@ -114,7 +116,11 @@ export function Canvas({
         ))}
       </Bar>
 
-      <Palette onColorSelect={(color) => setselectColor(color as Color)} />
+      <Palette
+        onColorSelect={(color) => setselectColor(color as Color)}
+        selectedThickness={selectThickness}
+        onThicknessSelect={(thickness) => setSelectThickness(thickness)}
+      />
 
       {/* Zoom UI */}
       <div

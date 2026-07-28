@@ -15,6 +15,7 @@ type Shape =
       width: number;
       height: number;
       color: string;
+      thickness?: number;
     }
   | {
       type: "circle";
@@ -23,6 +24,7 @@ type Shape =
       centerY: number;
       radius: number;
       color: string;
+      thickness?: number;
     }
   | {
       type: "line";
@@ -32,6 +34,7 @@ type Shape =
       endX: number;
       endY: number;
       color: string;
+      thickness?: number;
     }
   | {
       type: "text";
@@ -48,6 +51,7 @@ type Shape =
       id: string;
       color: string;
       points: { x: number; y: number }[];
+      thickness?: number;
     }
   | {
       type: "diamond";
@@ -57,6 +61,7 @@ type Shape =
       centerY: number;
       width: number;
       height: number;
+      thickness?: number;
     };
 
 /** Axis-aligned bounding box for any shape */
@@ -74,13 +79,19 @@ export class Game {
   private startY = 0;
   private selected: Tool = "circle";
   private selectedColor: Color = "red-500";
+  private selectedThickness = 2;
+  private selectedFontFamily = '"Comic Sans MS", "Comic Neue", cursive';
   private currentPencilStroke: {
     type: "pencil";
     id: string;
     color: string;
     points: { x: number; y: number }[];
+    thickness?: number;
   } | null = null;
+  private eraserPoints: { x: number; y: number }[] | null = null;
+  private eraserHoverPoint: { x: number; y: number } | null = null;
   socket: WebSocket;
+  private currentTextVal: string | null = null;
 
   private scale = 1;
   private offsetX = 0;
@@ -148,16 +159,26 @@ export class Game {
     ) {
       this.canvas.style.cursor = "crosshair";
     } else if (tool === "eraser") {
-      this.canvas.style.cursor = "cell";
+      this.canvas.style.cursor = "none";
     } else if (tool === "select") {
+      this.eraserHoverPoint = null;
       this.canvas.style.cursor = "default";
     } else {
+      this.eraserHoverPoint = null;
       this.canvas.style.cursor = "pointer";
     }
   }
 
   setColor(color: "red-500" | "blue-500" | "green-500" | "white") {
     this.selectedColor = color;
+  }
+
+  setThickness(thickness: number) {
+    this.selectedThickness = thickness;
+  }
+
+  setFontFamily(font: string) {
+    this.selectedFontFamily = font;
   }
 
   // ─── Bounding box ───────────────────────────────────────────────────────────
@@ -485,10 +506,20 @@ export class Game {
     this.existingShapes.forEach((shape) => {
       if (!shape || !shape.type) return;
       const color = colorCoder(shape.color || "white", 1);
+      this.ctx.lineWidth = (shape as any).thickness || 2;
+      this.ctx.lineJoin = "round";
+      this.ctx.lineCap = "round";
 
       if (shape.type === "rect") {
+        this.ctx.beginPath();
         this.ctx.strokeStyle = color;
-        this.ctx.strokeRect(shape.x, shape.y, shape.width, shape.height);
+        if (typeof (this.ctx as any).roundRect === "function") {
+          this.ctx.roundRect(shape.x, shape.y, shape.width, shape.height, 12);
+        } else {
+          this.ctx.rect(shape.x, shape.y, shape.width, shape.height);
+        }
+        this.ctx.stroke();
+        this.ctx.closePath();
       } else if (shape.type === "circle") {
         this.ctx.beginPath();
         this.ctx.strokeStyle = color;
@@ -514,13 +545,23 @@ export class Game {
         this.ctx.fillText(shape.text, shape.startX, shape.startY);
         this.ctx.textBaseline = "alphabetic"; // reset to default
       } else if (shape.type === "pencil") {
-        this.ctx.beginPath();
-        this.ctx.strokeStyle = color;
-        shape.points.forEach((point, index) => {
-          if (index === 0) this.ctx.moveTo(point.x, point.y);
-          else this.ctx.lineTo(point.x, point.y);
-        });
-        this.ctx.stroke();
+        if (shape.points.length > 0) {
+          this.ctx.beginPath();
+          this.ctx.strokeStyle = color;
+          this.ctx.moveTo(shape.points[0].x, shape.points[0].y);
+          for (let i = 1; i < shape.points.length - 1; i++) {
+            const xc = (shape.points[i].x + shape.points[i + 1].x) / 2;
+            const yc = (shape.points[i].y + shape.points[i + 1].y) / 2;
+            this.ctx.quadraticCurveTo(shape.points[i].x, shape.points[i].y, xc, yc);
+          }
+          if (shape.points.length > 1) {
+            this.ctx.lineTo(
+              shape.points[shape.points.length - 1].x,
+              shape.points[shape.points.length - 1].y,
+            );
+          }
+          this.ctx.stroke();
+        }
       } else if (shape.type === "diamond") {
         this.ctx.beginPath();
         this.ctx.strokeStyle = color;
@@ -533,6 +574,15 @@ export class Game {
         this.ctx.closePath();
       }
     });
+
+    // Live drawing text preview (aligned with canvas coordinates exactly)
+    if (this.selected === "text" && this.currentTextVal !== null) {
+      this.ctx.font = `25px ${this.selectedFontFamily}`;
+      this.ctx.fillStyle = colorCoder(this.selectedColor, 1);
+      this.ctx.textBaseline = "top";
+      this.ctx.fillText(this.currentTextVal, this.startX, this.startY);
+      this.ctx.textBaseline = "alphabetic";
+    }
 
     // Draw selection highlight + handles
     if (
@@ -572,6 +622,36 @@ export class Game {
         this.ctx.strokeRect(c.x - hs / 2, c.y - hs / 2, hs, hs);
       }
       this.ctx.restore();
+    }
+
+    // Draw eraser trail and hover dot
+    if (this.selected === "eraser") {
+      if (this.eraserPoints && this.eraserPoints.length > 0) {
+        this.ctx.beginPath();
+        this.ctx.strokeStyle = "rgba(239, 68, 68, 0.25)"; // Semi-transparent red trail
+        this.ctx.lineWidth = 16;
+        this.ctx.lineCap = "round";
+        this.ctx.lineJoin = "round";
+        this.ctx.moveTo(this.eraserPoints[0].x, this.eraserPoints[0].y);
+        for (let i = 1; i < this.eraserPoints.length; i++) {
+          this.ctx.lineTo(this.eraserPoints[i].x, this.eraserPoints[i].y);
+        }
+        this.ctx.stroke();
+
+        const lastPoint = this.eraserPoints[this.eraserPoints.length - 1];
+        this.ctx.beginPath();
+        this.ctx.fillStyle = "rgba(239, 68, 68, 0.6)";
+        this.ctx.arc(lastPoint.x, lastPoint.y, 8, 0, Math.PI * 2);
+        this.ctx.fill();
+      } else if (this.eraserHoverPoint) {
+        this.ctx.beginPath();
+        this.ctx.fillStyle = "rgba(255, 255, 255, 0.25)";
+        this.ctx.arc(this.eraserHoverPoint.x, this.eraserHoverPoint.y, 8, 0, Math.PI * 2);
+        this.ctx.fill();
+        this.ctx.strokeStyle = "rgba(255, 255, 255, 0.6)";
+        this.ctx.lineWidth = 1;
+        this.ctx.stroke();
+      }
     }
 
     this.ctx.restore();
@@ -624,7 +704,9 @@ export class Game {
     }
 
     if (this.selected === "eraser") {
+      this.eraserPoints = [{ x: point.x, y: point.y }];
       this.eraseAtPoint(point.x, point.y);
+      this.clearCanvas();
       return;
     }
 
@@ -634,6 +716,7 @@ export class Game {
         id: generateId(),
         color: this.selectedColor,
         points: [{ x: this.startX, y: this.startY }],
+        thickness: this.selectedThickness,
       };
     }
   };
@@ -658,7 +741,11 @@ export class Game {
       return;
     }
 
-    if (this.selected === "eraser") return;
+    if (this.selected === "eraser") {
+      this.eraserPoints = null;
+      this.clearCanvas();
+      return;
+    }
 
     const point = this.getTransformedPoint(e.clientX, e.clientY);
     const width = point.x - this.startX;
@@ -676,16 +763,18 @@ export class Game {
         height,
         width,
         color: this.selectedColor,
+        thickness: this.selectedThickness,
       };
     } else if (selected === "circle") {
-      const radius = Math.max(width, height) / 2;
+      const radius = Math.max(Math.abs(width), Math.abs(height)) / 2;
       shape = {
         type: "circle",
         id: generateId(),
         radius,
-        centerX: this.startX + radius,
-        centerY: this.startY + radius,
+        centerX: this.startX + width / 2,
+        centerY: this.startY + height / 2,
         color: this.selectedColor,
+        thickness: this.selectedThickness,
       };
     } else if (selected === "line") {
       shape = {
@@ -696,6 +785,7 @@ export class Game {
         endX: this.startX + width,
         endY: this.startY + height,
         color: this.selectedColor,
+        thickness: this.selectedThickness,
       };
     } else if (selected === "diamond") {
       const centerX = this.startX + width / 2;
@@ -708,18 +798,18 @@ export class Game {
         width: Math.abs(width),
         height: Math.abs(height),
         color: this.selectedColor,
+        thickness: this.selectedThickness,
       };
     } else if (selected === "text") {
       const FONT_SIZE = 25;
-      const FONT_FAMILY = "Arial";
+      const FONT_FAMILY = this.selectedFontFamily;
 
       const screenX = this.startX * this.scale + this.offsetX;
       const screenY = this.startY * this.scale + this.offsetY;
 
-      // div[contenteditable] has zero internal padding unlike textarea,
-      // so its text top aligns exactly with canvas textBaseline="top"
       const div = document.createElement("div");
       div.contentEditable = "true";
+      // Position the transparent div box exactly at client screen coordinates
       div.style.cssText = [
         "position:fixed",
         `left:${screenX}px`,
@@ -727,7 +817,7 @@ export class Game {
         `font-size:${FONT_SIZE * this.scale}px`,
         `font-family:${FONT_FAMILY}`,
         `line-height:${FONT_SIZE * this.scale}px`,
-        `color:${colorCoder(this.selectedColor, 1)}`,
+        "color:transparent",
         `caret-color:${colorCoder(this.selectedColor, 1)}`,
         "background:transparent",
         "border:none",
@@ -747,12 +837,23 @@ export class Game {
       const startY = this.startY;
       let committed = false;
 
+      // Update canvas text live drawing preview on input change
+      this.currentTextVal = "";
+      div.addEventListener("input", () => {
+        this.currentTextVal = div.textContent;
+        this.clearCanvas();
+      });
+
       const commit = () => {
         if (committed) return;
         committed = true;
+        this.currentTextVal = null;
         const text = (div.textContent ?? "").trim();
         if (document.body.contains(div)) document.body.removeChild(div);
-        if (!text) return;
+        if (!text) {
+          this.clearCanvas();
+          return;
+        }
         const shape: Shape = {
           type: "text",
           startX,
@@ -781,7 +882,9 @@ export class Game {
         }
         if (ev.key === "Escape") {
           committed = true;
+          this.currentTextVal = null;
           if (document.body.contains(div)) document.body.removeChild(div);
+          this.clearCanvas();
         }
       });
 
@@ -844,7 +947,12 @@ export class Game {
       }
 
       if (this.selected === "eraser") {
+        if (this.eraserPoints) {
+          this.eraserPoints.push({ x: point.x, y: point.y });
+        }
+        this.eraserHoverPoint = { x: point.x, y: point.y };
         this.eraseAtPoint(point.x, point.y);
+        this.clearCanvas();
         return;
       }
 
@@ -856,16 +964,26 @@ export class Game {
       this.ctx.translate(this.offsetX, this.offsetY);
       this.ctx.scale(this.scale, this.scale);
       this.ctx.strokeStyle = colorCoder(this.selectedColor, 1);
+      this.ctx.lineWidth = this.selectedThickness;
+      this.ctx.lineJoin = "round";
+      this.ctx.lineCap = "round";
       const selected = this.selected;
 
       if (selected === "rect") {
-        this.ctx.strokeRect(this.startX, this.startY, width, height);
-      } else if (selected === "circle") {
-        const radius = Math.max(height, width) / 2;
-        const centerX = this.startX + radius;
-        const centerY = this.startY + radius;
         this.ctx.beginPath();
-        this.ctx.arc(centerX, centerY, Math.abs(radius), 0, Math.PI * 2);
+        if (typeof (this.ctx as any).roundRect === "function") {
+          this.ctx.roundRect(this.startX, this.startY, width, height, 12);
+        } else {
+          this.ctx.rect(this.startX, this.startY, width, height);
+        }
+        this.ctx.stroke();
+        this.ctx.closePath();
+      } else if (selected === "circle") {
+        const radius = Math.max(Math.abs(width), Math.abs(height)) / 2;
+        const centerX = this.startX + width / 2;
+        const centerY = this.startY + height / 2;
+        this.ctx.beginPath();
+        this.ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
         this.ctx.stroke();
         this.ctx.closePath();
       } else if (selected === "line") {
@@ -886,16 +1004,29 @@ export class Game {
         this.ctx.closePath();
       } else if (selected === "pencil") {
         this.currentPencilStroke?.points.push({ x: point.x, y: point.y });
-        this.ctx.beginPath();
-        this.currentPencilStroke?.points.forEach((p, index) => {
-          if (index === 0) this.ctx.moveTo(p.x, p.y);
-          else this.ctx.lineTo(p.x, p.y);
-        });
-        this.ctx.stroke();
+        const pts = this.currentPencilStroke?.points || [];
+        if (pts.length > 0) {
+          this.ctx.beginPath();
+          this.ctx.moveTo(pts[0].x, pts[0].y);
+          for (let i = 1; i < pts.length - 1; i++) {
+            const xc = (pts[i].x + pts[i + 1].x) / 2;
+            const yc = (pts[i].y + pts[i + 1].y) / 2;
+            this.ctx.quadraticCurveTo(pts[i].x, pts[i].y, xc, yc);
+          }
+          if (pts.length > 1) {
+            this.ctx.lineTo(pts[pts.length - 1].x, pts[pts.length - 1].y);
+          }
+          this.ctx.stroke();
+        }
       }
 
       this.ctx.restore();
     } else {
+      if (this.selected === "eraser") {
+        const point = this.getTransformedPoint(e.clientX, e.clientY);
+        this.eraserHoverPoint = { x: point.x, y: point.y };
+        this.clearCanvas();
+      }
       if (this.selected === "select") {
         const point = this.getTransformedPoint(e.clientX, e.clientY);
         const handle = this.getHandleAtPoint(point.x, point.y);
@@ -940,6 +1071,10 @@ export class Game {
     this.canvas.addEventListener("mousemove", this.mouseMoveHandler);
     this.canvas.addEventListener("wheel", this.wheelHandler, {
       passive: false,
+    });
+    this.canvas.addEventListener("mouseleave", () => {
+      this.eraserHoverPoint = null;
+      this.clearCanvas();
     });
   }
 
