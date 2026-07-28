@@ -9,7 +9,11 @@ import axios from "axios";
 import { HTTP_BACKEND } from "@/config";
 import { motion, AnimatePresence } from "framer-motion";
 
+import { usePathname } from "next/navigation";
+
 const Navbar = () => {
+  const pathname = usePathname();
+  const isRoomsPage = pathname === "/join";
   const [profileOpen, setProfileOpen] = useState(false);
   const [userEmail, setUserEmail] = useState("");
   const [userName, setUserName] = useState("");
@@ -36,7 +40,7 @@ const Navbar = () => {
 
   return (
     <motion.nav
-      initial={{ y: -60, opacity: 0 }}
+      initial={isRoomsPage ? false : { y: -60, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.5, ease: "easeOut" }}
       className="fixed top-0 left-0 z-50 w-full bg-black/40 backdrop-blur-xl border-b border-white/10"

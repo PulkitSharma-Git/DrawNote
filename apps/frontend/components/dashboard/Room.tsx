@@ -67,7 +67,7 @@ export default function Room({
             </h2>
           </div>
           {/* Arrow */}
-          <div className="shrink-0 flex items-center justify-center h-8 w-8 rounded-lg bg-white/5 border border-white/10 text-white/30 group-hover:text-white group-hover:border-white/20 transition-all duration-200">
+          <div className="shrink-0 flex items-center justify-center h-8 w-8 rounded-lg bg-white/5 text-white/30 group-hover:text-white transition-all duration-200">
             <IoArrowForward className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-0.5" />
           </div>
         </div>

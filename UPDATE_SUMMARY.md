@@ -4,6 +4,17 @@ This document provides a detailed summary of the logical changes, features, and 
 
 ## Latest Updates (July 2026)
 
+- **Navbar Animation and Room Skeleton UI Improvements**
+  - Disabled the initial up-to-down slide entrance animation on the [Navbar.tsx](file:///Users/mac/Desktop/DrawNote/apps/frontend/components/layout/Navbar.tsx) component when navigating to the rooms page (`/join`) by detecting the path using `usePathname()` from `next/navigation`.
+  - Replaced the generic, low-fidelity spinner loading indicator on the rooms list page [join/page.tsx](file:///Users/mac/Desktop/DrawNote/apps/frontend/app/join/page.tsx) with a grid of 6 pulsing skeleton cards.
+  - Created a new [RoomSkeleton.tsx](file:///Users/mac/Desktop/DrawNote/apps/frontend/components/dashboard/RoomSkeleton.tsx) component, matching the visual geometry and using the same hover gradient background (`bg-gradient-to-br from-orange-500/20 via-red-500/10 to-blue-500/20`) of active [Room.tsx](file:///Users/mac/Desktop/DrawNote/apps/frontend/components/dashboard/Room.tsx) cards (configured with `opacity-70` to make it softer).
+  - Removed the thin border outlines (`border border-white/10` and hover variants) from the arrow icon container on both the active [Room.tsx](file:///Users/mac/Desktop/DrawNote/apps/frontend/components/dashboard/Room.tsx) card and [RoomSkeleton.tsx](file:///Users/mac/Desktop/DrawNote/apps/frontend/components/dashboard/RoomSkeleton.tsx) placeholders to clean up the card interface.
+
+- **Safe Shape Parsing & Crash Prevention**
+  - Updated `getExistingShapes` in `apps/frontend/draw/http.ts` to safely parse message records retrieved from the database, filtering out any records that do not contain a valid serialized `shape` object (e.g. text chat messages) to prevent `undefined` shape references.
+  - Wrapped JSON parsing inside `initHandlers()` in `apps/frontend/draw/Game.ts` in a try-catch block to ignore standard chat text WebSocket events and prevent websocket handler crashes.
+  - Added safety checks in `clearCanvas()` in `apps/frontend/draw/Game.ts` to check if a shape is valid and skip any rendering if it is undefined or lacks a type, falling back to a default `"white"` drawing color when a shape lacks a color.
+
 - **Dashboard Redesign**
   - Removed the large `RoomForm` landing card from the dashboard (`page.tsx`) to prioritize the rooms list.
   - Shipped a clean, centered container layout (`max-w-6xl`) with improved spacing.

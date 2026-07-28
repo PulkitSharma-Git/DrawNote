@@ -431,25 +431,41 @@ export class Game {
 
   initHandlers() {
     this.socket.addEventListener("message", (event) => {
-      const message = JSON.parse(event.data);
-      if (message.type == "chat") {
-        const parsedShape = JSON.parse(message.message);
-        this.existingShapes.push(parsedShape.shape);
-        this.clearCanvas();
-      } else if (message.type == "erase") {
-        this.existingShapes = this.existingShapes.filter(
-          (s) => s.id !== message.shapeId,
-        );
-        this.clearCanvas();
-      } else if (message.type == "update") {
-        const parsedMessage = JSON.parse(message.message);
-        const index = this.existingShapes.findIndex(
-          (s) => s.id === parsedMessage.shape.id,
-        );
-        if (index !== -1) {
-          this.existingShapes[index] = parsedMessage.shape;
+      try {
+        const message = JSON.parse(event.data);
+        if (message.type == "chat") {
+          try {
+            const parsedShape = JSON.parse(message.message);
+            if (parsedShape && parsedShape.shape) {
+              this.existingShapes.push(parsedShape.shape);
+              this.clearCanvas();
+            }
+          } catch (e) {
+            // Not a shape, ignore standard chat messages
+          }
+        } else if (message.type == "erase") {
+          this.existingShapes = this.existingShapes.filter(
+            (s) => s.id !== message.shapeId,
+          );
           this.clearCanvas();
+        } else if (message.type == "update") {
+          try {
+            const parsedMessage = JSON.parse(message.message);
+            if (parsedMessage && parsedMessage.shape) {
+              const index = this.existingShapes.findIndex(
+                (s) => s.id === parsedMessage.shape.id,
+              );
+              if (index !== -1) {
+                this.existingShapes[index] = parsedMessage.shape;
+                this.clearCanvas();
+              }
+            }
+          } catch (e) {
+            // Safe parse failure
+          }
         }
+      } catch (err) {
+        console.error("Error processing WS message:", err);
       }
     });
   }
@@ -467,7 +483,8 @@ export class Game {
     this.ctx.scale(this.scale, this.scale);
 
     this.existingShapes.forEach((shape) => {
-      const color = colorCoder(shape.color, 1);
+      if (!shape || !shape.type) return;
+      const color = colorCoder(shape.color || "white", 1);
 
       if (shape.type === "rect") {
         this.ctx.strokeStyle = color;

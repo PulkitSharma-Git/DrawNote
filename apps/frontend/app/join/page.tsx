@@ -2,10 +2,10 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
-import { FaSpinner } from "react-icons/fa";
 import PageLayout from "@/components/layout/PageLayout";
 import Rooms from "@/components/dashboard/Rooms";
 import Room from "@/components/dashboard/Room";
+import RoomSkeleton from "@/components/dashboard/RoomSkeleton";
 import { Button } from "@/components/ui/Button";
 import NewRoomModal from "@/components/dashboard/NewRoomModal";
 import { HTTP_BACKEND } from "@/config";
@@ -57,9 +57,11 @@ export default function JoinPage() {
   const renderRooms = () => {
     if (status === "loading")
       return (
-        <div className="flex justify-center py-16">
-          <FaSpinner className="text-white/40 text-2xl animate-spin" />
-        </div>
+        <Rooms>
+          {Array.from({ length: 6 }).map((_, idx) => (
+            <RoomSkeleton key={idx} />
+          ))}
+        </Rooms>
       );
     if (status === "error")
       return (
