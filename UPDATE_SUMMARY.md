@@ -4,8 +4,10 @@ This document provides a detailed summary of the logical changes, features, and 
 
 ## Latest Updates (July 2026)
 
-- **Minimal User Details Dropdown Card Redesign**
+- **Minimal User Details Dropdown Card Redesign & Loading Skeleton**
   - Redesigned the user profile card popup in [UserDetails.tsx](file:///Users/mac/Desktop/DrawNote/apps/frontend/components/dashboard/UserDetails.tsx) that appears upon clicking the navbar avatar.
+  - Added a premium skeleton loading state to the user details dropdown card matching its structural layout and incorporating a subtle gradient pulse effect to improve perceived load times.
+  - Updated the navigation bar component [Navbar.tsx](file:///Users/mac/Desktop/DrawNote/apps/frontend/components/layout/Navbar.tsx) to track client-side user details loading state and pass it down as a prop to the `UserDetails` component.
   - Implemented a sleek, solid deep-dark styling (`bg-[#0f1115] border border-white/10 shadow-2xl p-4`) that perfectly blends with the workspace theme colors and keeps the design solid.
   - Replaced the generic outline avatar icon with a personalized dynamic circular initials container, picking a deterministic gradient based on the hash of the user's name.
   - Cleaned up the dropdown list layout to be minimal and directly to the point, removing extra widgets and leaving just the profile name/email and a solid red Sign out action (`bg-red-600 hover:bg-red-500 text-white`) with a Lucide `LogOut` icon.

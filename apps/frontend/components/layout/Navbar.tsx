@@ -18,19 +18,23 @@ const Navbar = () => {
   const [userEmail, setUserEmail] = useState("");
   const [userName, setUserName] = useState("");
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (!token) return;
     setIsLoggedIn(true);
+    setIsLoading(true);
     axios
       .get(`${HTTP_BACKEND}/getUser`, { headers: { Authorization: token } })
       .then(({ data }) => {
         setUserEmail(data.user.email);
         setUserName(data.user.name);
+        setIsLoading(false);
       })
       .catch((err) => {
         setIsLoggedIn(false);
+        setIsLoading(false);
         localStorage.removeItem("token");
         if (err.response?.status === 401) {
           window.location.href = "/signin";
@@ -78,7 +82,7 @@ const Navbar = () => {
                   transition={{ duration: 0.2, ease: "easeOut" }}
                   className="absolute right-0 mt-3"
                 >
-                  <UserDetails email={userEmail} name={userName} />
+                  <UserDetails email={userEmail} name={userName} loading={isLoading} />
                 </motion.div>
               )}
             </AnimatePresence>

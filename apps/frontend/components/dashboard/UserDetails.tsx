@@ -5,15 +5,42 @@ import { LogOut } from "lucide-react";
 interface UserDetailsProps {
   email: string;
   name: string;
+  loading?: boolean;
 }
 
-export default function UserDetails({ email, name }: UserDetailsProps) {
+export default function UserDetails({ email, name, loading }: UserDetailsProps) {
   const router = useRouter();
 
   const handleLogout = () => {
     localStorage.removeItem("token");
     window.location.href = "/";
   };
+
+  if (loading) {
+    return (
+      <div className="relative w-64 rounded-2xl bg-[#0f1115] border border-white/10 shadow-2xl p-4 space-y-4 text-left overflow-hidden">
+        {/* Subtle background glow */}
+        <div className="absolute inset-0 bg-gradient-to-br from-orange-500/5 via-transparent to-blue-500/5 animate-pulse pointer-events-none" />
+        
+        {/* Profile details skeleton */}
+        <div className="relative z-10 flex items-center gap-3">
+          {/* Avatar skeleton */}
+          <div className="h-10 w-10 rounded-full bg-white/10 animate-pulse ring-2 ring-white/5 shrink-0" />
+          <div className="min-w-0 flex-1 space-y-2">
+            {/* Name bar */}
+            <div className="h-4 bg-white/10 rounded animate-pulse w-2/3" />
+            {/* Email bar */}
+            <div className="h-3 bg-white/5 rounded animate-pulse w-5/6" />
+          </div>
+        </div>
+
+        <div className="relative z-10 h-px w-full bg-white/10" />
+
+        {/* Action button skeleton */}
+        <div className="relative z-10 h-9 w-full rounded-xl bg-white/5 animate-pulse" />
+      </div>
+    );
+  }
 
   // Generate a dynamic initial letter
   const initial = name ? name.trim().charAt(0).toUpperCase() : "?";
