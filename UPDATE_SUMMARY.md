@@ -4,6 +4,14 @@ This document provides a detailed summary of the logical changes, features, and 
 
 ## Latest Updates (July 2026)
 
+- **Minimal User Details Dropdown Card Redesign**
+  - Redesigned the user profile card popup in [UserDetails.tsx](file:///Users/mac/Desktop/DrawNote/apps/frontend/components/dashboard/UserDetails.tsx) that appears upon clicking the navbar avatar.
+  - Implemented a sleek, solid deep-dark styling (`bg-[#0f1115] border border-white/10 shadow-2xl p-4`) that perfectly blends with the workspace theme colors and keeps the design solid.
+  - Replaced the generic outline avatar icon with a personalized dynamic circular initials container, picking a deterministic gradient based on the hash of the user's name.
+  - Cleaned up the dropdown list layout to be minimal and directly to the point, removing extra widgets and leaving just the profile name/email and a solid red Sign out action (`bg-red-600 hover:bg-red-500 text-white`) with a Lucide `LogOut` icon.
+  - Updated the sign out button handler to trigger a full page reload by redirecting using `window.location.href = "/"` instead of client-side `router.push("/")` to ensure complete session state clearance.
+  - Ported the identical custom initials gradient avatar generator and design system (matching dynamic presets and outlines) to the "People in Room" active user listing in [RoomUsers.tsx](file:///Users/mac/Desktop/DrawNote/apps/frontend/components/canvas/RoomUsers.tsx) to establish visual identity consistency.
+
 - **Navbar Animation and Room Skeleton UI Improvements**
   - Disabled the initial up-to-down slide entrance animation on the [Navbar.tsx](file:///Users/mac/Desktop/DrawNote/apps/frontend/components/layout/Navbar.tsx) component when navigating to the rooms page (`/join`) by detecting the path using `usePathname()` from `next/navigation`.
   - Replaced the generic, low-fidelity spinner loading indicator on the rooms list page [join/page.tsx](file:///Users/mac/Desktop/DrawNote/apps/frontend/app/join/page.tsx) with a grid of 6 pulsing skeleton cards.
