@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
 import PageLayout from "@/components/layout/PageLayout";
@@ -9,7 +9,10 @@ import RoomSkeleton from "@/components/dashboard/RoomSkeleton";
 import EmptyState from "@/components/dashboard/EmptyState";
 import { Button } from "@/components/ui/Button";
 import NewRoomModal from "@/components/dashboard/NewRoomModal";
+import DeleteRoomModal from "@/components/dashboard/DeleteRoomModal";
 import { HTTP_BACKEND } from "@/config";
+import { AnimatePresence } from "framer-motion";
+import UndoToast from "@/components/dashboard/UndoToast";
 
 interface RoomType {
   id: string | number;
@@ -23,6 +26,49 @@ export default function JoinPage() {
   const [rooms, setRooms] = useState<RoomType[]>([]);
   const [status, setStatus] = useState<Status>("loading");
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [roomToConfirm, setRoomToConfirm] = useState<RoomType | null>(null);
+  const [pendingDelete, setPendingDelete] = useState<{
+    room: RoomType;
+    index: number;
+  } | null>(null);
+  const pendingDeleteRef = useRef<{
+    room: RoomType;
+    index: number;
+  } | null>(null);
+
+  useEffect(() => {
+    pendingDeleteRef.current = pendingDelete;
+  }, [pendingDelete]);
+
+  const executeDelete = async (room: RoomType, originalIndex?: number) => {
+    const token = localStorage.getItem("token");
+    if (!token) return;
+
+    try {
+      await axios.delete(`${HTTP_BACKEND}/room/${room.id}`, {
+        headers: { Authorization: token },
+      });
+    } catch (e) {
+      console.error("Failed to delete room:", e);
+      alert(`Failed to delete room "${room.slug}". Please try again.`);
+      setRooms((prev) => {
+        if (prev.some((r) => String(r.id) === String(room.id))) {
+          return prev;
+        }
+        if (originalIndex !== undefined) {
+          const next = [...prev];
+          next.splice(originalIndex, 0, room);
+          return next;
+        }
+        return [...prev, room];
+      });
+    }
+  };
+
+  const executeDeleteRef = useRef(executeDelete);
+  useEffect(() => {
+    executeDeleteRef.current = executeDelete;
+  }, [executeDelete]);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -38,20 +84,44 @@ export default function JoinPage() {
         setStatus("success");
       })
       .catch(() => setStatus("error"));
+
+    return () => {
+      // Commit pending delete on unmount
+      if (pendingDeleteRef.current) {
+        executeDeleteRef.current(pendingDeleteRef.current.room, pendingDeleteRef.current.index);
+      }
+    };
   }, [router]);
 
-  const handleDeleteRoom = async (roomId: string) => {
-    const token = localStorage.getItem("token");
-    if (!token) return;
+  const handleDeleteRoom = (roomId: string) => {
+    // If there is already a pending delete, commit it immediately!
+    if (pendingDeleteRef.current) {
+      executeDelete(pendingDeleteRef.current.room, pendingDeleteRef.current.index);
+    }
 
-    try {
-      await axios.delete(`${HTTP_BACKEND}/room/${roomId}`, {
-        headers: { Authorization: token },
+    const index = rooms.findIndex((r) => String(r.id) === String(roomId));
+    if (index === -1) return;
+
+    const roomToDelete = rooms[index];
+    setPendingDelete({ room: roomToDelete, index });
+    setRooms((prev) => prev.filter((r) => String(r.id) !== String(roomId)));
+  };
+
+  const handleTimeout = () => {
+    if (pendingDelete) {
+      executeDelete(pendingDelete.room, pendingDelete.index);
+      setPendingDelete(null);
+    }
+  };
+
+  const handleUndo = () => {
+    if (pendingDelete) {
+      setRooms((prev) => {
+        const next = [...prev];
+        next.splice(pendingDelete.index, 0, pendingDelete.room);
+        return next;
       });
-      setRooms((prev) => prev.filter((r) => String(r.id) !== String(roomId)));
-    } catch (e) {
-      console.error("Failed to delete room:", e);
-      alert("Failed to delete room. Please try again.");
+      setPendingDelete(null);
     }
   };
 
@@ -80,7 +150,7 @@ export default function JoinPage() {
             roomId={String(room.id)}
             roomname={room.slug}
             onClick={() => router.push(`/canvas/${room.id}`)}
-            onDelete={handleDeleteRoom}
+            onDelete={() => setRoomToConfirm(room)}
           />
         ))}
       </Rooms>
@@ -112,6 +182,32 @@ export default function JoinPage() {
           isOpen={isModalOpen}
           onClose={() => setIsModalOpen(false)}
         />
+
+        {/* Delete Room Modal */}
+        <DeleteRoomModal
+          isOpen={!!roomToConfirm}
+          onClose={() => setRoomToConfirm(null)}
+          onConfirm={() => {
+            if (roomToConfirm) {
+              handleDeleteRoom(String(roomToConfirm.id));
+              setRoomToConfirm(null);
+            }
+          }}
+          roomname={roomToConfirm?.slug ?? ""}
+        />
+
+        {/* Undo Toast */}
+        <AnimatePresence>
+          {pendingDelete && (
+            <UndoToast
+              key={pendingDelete.room.id}
+              roomname={pendingDelete.room.slug}
+              onTimeout={handleTimeout}
+              onUndo={handleUndo}
+              duration={5000}
+            />
+          )}
+        </AnimatePresence>
       </div>
     </PageLayout>
   );

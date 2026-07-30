@@ -4,6 +4,13 @@ This document provides a detailed summary of the logical changes, features, and 
 
 ## Latest Updates (July 2026)
 
+- **Optimistic Room Deletion with Undo Toast & Standalone Delete Room Modal**
+  - Refactored [Room.tsx](file:///Users/mac/Desktop/DrawNote/apps/frontend/components/dashboard/Room.tsx) to perform instant card removal from the frontend UI upon clicking delete.
+  - Created a modular standalone [DeleteRoomModal.tsx](file:///Users/mac/Desktop/DrawNote/apps/frontend/components/dashboard/DeleteRoomModal.tsx) component wrapping the `CustomModal` confirmation logic with a clean, simplified and concise warning prompt.
+  - Designed and implemented [UndoToast.tsx](file:///Users/mac/Desktop/DrawNote/apps/frontend/components/dashboard/UndoToast.tsx) at the bottom left with responsive layout configurations (centered width margins on mobile, bottom-left pinning on desktop), minimal text, a colorless/transparent Undo button (similar to the navbar sign-in style), and an optimized, butter-smooth hardware-accelerated progress bar transition (`transition: width 5000ms linear`) to replace stuttery React state updates.
+  - Added robust state-preservation inside [join/page.tsx](file:///Users/mac/Desktop/DrawNote/apps/frontend/app/join/page.tsx) to support optimistic deletion (restoring position exactly on Undo), immediate API dispatch when a new deletion begins, and cleanup triggers on unmount. Removed `await` on backend deletion triggers so that network latency does not block hiding the toast.
+  - Created a reusable `DestructiveButton` component inside [DestructiveButton.tsx](file:///Users/mac/Desktop/DrawNote/apps/frontend/components/ui/DestructiveButton.tsx) and integrated it inside both [DeleteRoomModal.tsx](file:///Users/mac/Desktop/DrawNote/apps/frontend/components/dashboard/DeleteRoomModal.tsx) and [UserDetails.tsx](file:///Users/mac/Desktop/DrawNote/apps/frontend/components/dashboard/UserDetails.tsx) to unify destructive action button styles.
+
 - **Minimal User Details Dropdown Card Redesign & Loading Skeleton**
   - Redesigned the user profile card popup in [UserDetails.tsx](file:///Users/mac/Desktop/DrawNote/apps/frontend/components/dashboard/UserDetails.tsx) that appears upon clicking the navbar avatar.
   - Added a premium skeleton loading state to the user details dropdown card matching its structural layout and incorporating a subtle gradient pulse effect to improve perceived load times.
