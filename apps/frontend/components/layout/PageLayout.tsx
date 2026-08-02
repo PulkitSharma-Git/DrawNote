@@ -8,16 +8,14 @@ interface PageLayoutProps {
 
 export default function PageLayout({ children }: PageLayoutProps) {
   return (
-    <div className="relative min-h-screen text-white bg-[#0b0d12] overflow-hidden">
-      {/* Ambient Glows — subtler, smaller */}
+    <div className="relative min-h-screen overflow-x-hidden bg-[#0b0d12] text-white">
+      {/* Ambient Glows */}
       <div className="pointer-events-none fixed inset-0 z-0">
-        <div className="absolute -top-24 -left-24 w-[320px] h-[320px] bg-orange-500/10 rounded-full blur-[100px]" />
-        <div className="absolute top-1/2 -right-24 w-[280px] h-[280px] bg-blue-500/10 rounded-full blur-[120px]" />
-        <div className="absolute bottom-0 left-1/3 w-[240px] h-[240px] bg-purple-500/10 rounded-full blur-[100px]" />
+        <div className="absolute -left-24 -top-24 h-[320px] w-[320px] rounded-full bg-orange-500/10 blur-[100px]" />
+        <div className="absolute bottom-0 left-1/3 h-[240px] w-[240px] rounded-full bg-purple-500/10 blur-[100px]" />
       </div>
 
-      {/* Content */}
-      <div className="relative z-10 flex flex-col min-h-screen">
+      <div className="relative z-10 flex min-h-screen flex-col">
         <Navbar />
         <main className="flex-1">{children}</main>
         <Footer />

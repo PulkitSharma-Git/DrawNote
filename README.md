@@ -369,3 +369,54 @@ https://github.com/PulkitSharma-Git
 ---
 
 ⭐ If you found this project interesting, consider starring the repository.
+
+
+
+
+
+# Fix WebSocket Server Crash and '/canvas/undefined' Redirect
+
+## Problem Description
+1. **WebSocket Server Crash:** The production WebSocket server (`apps/ws-backend`) crashed due to a `PrismaClientValidationError` when saving a message for a room whose ID parsed as `NaN` (e.g., `data: { roomId: NaN }`). Since the `ws.on("message")` handler does not catch asynchronous DB exceptions, any validation error results in an unhandled promise rejection, crashing the server.
+2. **Redirection to `/canvas/undefined`:** When creating a room with invalid inputs (e.g., room name length not between 3 and 20 characters), `http-backend` validates the input via Zod and returns `200 OK` with JSON `{ message: "Incorrect inputs" }`. Because the status code is `200`, the frontend does not catch it as an error and tries to navigate to `/canvas/${data.roomId}`. Since `data.roomId` is undefined, the route becomes `/canvas/undefined`.
+
+## Proposed Changes
+
+### [Component: WebSocket Backend]
+
+#### [MODIFY] [index.ts](file:///Users/mac/Desktop/DrawNote/apps/ws-backend/src/index.ts)
+- Wrap the body of `ws.on("message", ...)` in a try/catch block to prevent any unhandled database or processing exceptions from crashing the process.
+- Validate `roomId` in the `"chat"`, `"erase"`, and `"update"` message handlers to ensure it is a valid integer before querying or inserting into the database. If it is invalid, log a warning and ignore/reject the message.
+
+---
+
+### [Component: HTTP Backend]
+
+#### [MODIFY] [index.ts](file:///Users/mac/Desktop/DrawNote/apps/http-backend/src/index.ts)
+- In the `POST /room` endpoint, return a `400 Bad Request` instead of a 200 response when Zod schema validation fails.
+- In the `GET /chats/:roomId` endpoint, add validation to verify `roomId` is a valid number. Return a `400 Bad Request` if it is not, instead of relying on the catch block.
+
+---
+
+### [Component: Frontend]
+
+#### [MODIFY] [RoomCanvas.tsx](file:///Users/mac/Desktop/DrawNote/apps/frontend/components/canvas/RoomCanvas.tsx)
+- Validate `roomId` on mount. If `roomId` is not a valid number (e.g. `isNaN(Number(roomId))`), set the state to `"error"` instead of initiating WebSocket connections with an invalid ID.
+
+#### [MODIFY] [NewRoomModal.tsx](file:///Users/mac/Desktop/DrawNote/apps/frontend/components/dashboard/NewRoomModal.tsx)
+- Add frontend validation for the room name length (must be between 3 and 20 characters) before sending the request.
+- Display a descriptive validation error if validation fails.
+
+#### [MODIFY] [RoomForm.tsx](file:///Users/mac/Desktop/DrawNote/apps/frontend/components/dashboard/RoomForm.tsx)
+- Add frontend validation for the room name length (must be between 3 and 20 characters) before sending the request.
+- Display a descriptive validation error if validation fails.
+
+## Verification Plan
+
+### Automated Tests
+- Build all packages using `npm run build` or `yarn build` to ensure type-safety.
+
+### Manual Verification
+- Test creating a room with names < 3 characters or > 20 characters and verify that validation errors are displayed without redirecting to `/canvas/undefined`.
+- Verify the server handles invalid room IDs without crashing by navigating to `/canvas/NaN`.
+- Verify drawing and updating shapes in valid rooms works properly.
