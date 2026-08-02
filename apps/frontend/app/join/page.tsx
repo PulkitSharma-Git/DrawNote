@@ -175,7 +175,10 @@ export default function JoinPage() {
 
 
         {/* Rooms List */}
-        <section>{renderRooms()}</section>
+        <section 
+          className="h-[50vw] pt-10 flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent"
+        
+        >{renderRooms()}</section>
 
         {/* New Room Modal */}
         <NewRoomModal

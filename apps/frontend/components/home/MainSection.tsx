@@ -3,6 +3,7 @@ import Link from "next/link";
 import { motion, HTMLMotionProps } from "framer-motion";
 import { Button } from "@/components/ui/Button";
 import BackgroundAnimation from "./BackgroundAnimation";
+import Footer from "../layout/Footer";
 
 const fadeUp = (delay = 0) => ({
   initial: { opacity: 0, y: 16 },
@@ -246,11 +247,11 @@ export default function HeroSection() {
         animate={{ y: [0, -24, 0], x: [0, 16, 0] }}
         transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
       />
-      <FloatingOrb
+      {/*<FloatingOrb
         className="h-[380px] w-[380px] -bottom-40 -right-24 bg-gradient-to-br from-blue-500/15 via-purple-500/10 to-pink-500/10"
         animate={{ y: [0, 32, 0], x: [0, -16, 0] }}
         transition={{ duration: 14, repeat: Infinity, ease: "easeInOut" }}
-      />
+      />*/}
 
       <div className="relative z-10 mx-auto flex min-h-screen max-w-7xl flex-col md:flex-row items-center justify-between px-6 pt-24 pb-16 gap-12">
         {/* Left side text layout */}
