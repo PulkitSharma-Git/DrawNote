@@ -14,6 +14,11 @@ export function RoomCanvas({ roomId }: { roomId: string }) {
   const [status, setStatus] = useState<Status>("connecting");
 
   useEffect(() => {
+    if (isNaN(Number(roomId))) {
+      setStatus("error");
+      return;
+    }
+
     const token = localStorage.getItem("token");
     if (!token) {
       router.replace("/signin");
@@ -34,7 +39,7 @@ export function RoomCanvas({ roomId }: { roomId: string }) {
     return () => {
       ws.close();
     };
-  }, [roomId]);
+  }, [roomId, router]);
 
   if (status === "connecting")
     return (

@@ -18,6 +18,7 @@ export function RoomForm() {
 
   async function handleSubmit() {
     const value = roomRef.current?.value.trim();
+
     if (!value) {
       setError(
         tab === "create"
@@ -26,6 +27,12 @@ export function RoomForm() {
       );
       return;
     }
+
+    if (tab === "create" && (value.length < 3 || value.length > 20)) {
+      setError("Room name must be between 3 and 20 characters long.");
+      return;
+    }
+
     setError("");
 
     // Guard: localStorage.getItem returns null if the user isn't logged in.
@@ -48,10 +55,12 @@ export function RoomForm() {
           { name: value },
           { headers: { authorization: token } },
         );
+
         router.push(`/canvas/${data.roomId}`);
       } else {
         // Join flow: validate the room ID is a number before hitting the API
         const numericId = Number(value);
+
         if (isNaN(numericId)) {
           setError("Room ID must be a valid number.");
           setLoading(false);
@@ -59,16 +68,20 @@ export function RoomForm() {
         }
 
         const { data } = await axios.get(`${HTTP_BACKEND}/room/${numericId}`);
+
         if (!data.room) {
           setError("Room not found.");
           setLoading(false);
           return;
         }
+
         router.push(`/canvas/${data.room.id}`);
       }
     } catch {
       setError(
-        tab === "create" ? "Failed to create room." : "Error checking room.",
+        tab === "create"
+          ? "Failed to create room."
+          : "Error checking room.",
       );
       setLoading(false);
     }

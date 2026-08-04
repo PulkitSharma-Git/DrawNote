@@ -105,11 +105,11 @@ app.get("/getRooms", middleware, async (req, res) => {
 app.post("/room", middleware, async (req, res) => {
   const parsedData = CreateRoomSchema.safeParse(req.body);
   if (!parsedData.success) {
-    res.json({
-      message: "Incorrect inputs",
-    });
-    return;
-  }
+  res.status(400).json({
+    message: "Incorrect inputs",
+  });
+  return;
+}
   // @ts-ignore: TODO: Fix this
   const userId = req.userId;
 
@@ -132,12 +132,19 @@ app.post("/room", middleware, async (req, res) => {
 });
 
 app.get("/chats/:roomId", async (req, res) => {
+  const roomId = Number(req.params.roomId);
+
+  if (isNaN(roomId)) {
+    res.status(400).json({
+      message: "Invalid room ID",
+    });
+    return;
+  }
+
   try {
-    const roomId = Number(req.params.roomId);
-    console.log(req.params.roomId);
     const messages = await prismaClient.chat.findMany({
       where: {
-        roomId: roomId,
+        roomId,
       },
       orderBy: {
         id: "desc",
@@ -149,8 +156,9 @@ app.get("/chats/:roomId", async (req, res) => {
       messages,
     });
   } catch (e) {
-    console.log(e);
-    res.json({
+    console.error(e);
+
+    res.status(500).json({
       messages: [],
     });
   }

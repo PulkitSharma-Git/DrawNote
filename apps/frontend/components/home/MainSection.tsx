@@ -3,7 +3,6 @@ import Link from "next/link";
 import { motion, HTMLMotionProps } from "framer-motion";
 import { Button } from "@/components/ui/Button";
 import BackgroundAnimation from "./BackgroundAnimation";
-import Footer from "../layout/Footer";
 
 const fadeUp = (delay = 0) => ({
   initial: { opacity: 0, y: 16 },

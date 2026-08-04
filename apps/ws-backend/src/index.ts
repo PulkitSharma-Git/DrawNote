@@ -90,6 +90,17 @@ function checkUser(token: string): string | null {
   }
 }
 
+function getValidRoomId(roomId: unknown): number | null {
+  const parsedRoomId = Number(roomId);
+
+  if (!Number.isInteger(parsedRoomId)) {
+    console.warn("Received invalid roomId:", roomId);
+    return null;
+  }
+
+  return parsedRoomId;
+}
+
 async function broadcastRoomUsers(roomId: string) {
   // Find all currently connected sockets that have joined this room
   const clientsInRoom = users.filter((u) => u.rooms.includes(roomId));
@@ -141,134 +152,138 @@ wss.on("connection", function connection(ws, request) {
   });
 
   ws.on("message", async function message(data) {
-    let parsedData: any;
-
-    // Safely parse the incoming JSON message — malformed JSON should not crash the server
     try {
-      parsedData = JSON.parse(data as unknown as string);
-    } catch {
-      console.error("WS: received non-JSON message, ignoring.");
-      return;
-    }
+      let parsedData: any;
 
-    if (parsedData.type === "join_room") {
-      const user = users.find((x) => x.ws === ws);
-      if (!user) return;
-
-      // Normalize roomId to a string so comparisons are always consistent.
-      // Without this, Number vs String comparisons in includes() silently fail.
-      const roomId = String(parsedData.roomId);
-
-      // Only add if not already joined (prevents duplicates)
-      if (!user.rooms.includes(roomId)) {
-        user.rooms.push(roomId);
-        broadcastRoomUsers(roomId);
+      // Safely parse the incoming JSON message
+      try {
+        parsedData = JSON.parse(data as unknown as string);
+      } catch {
+        console.error("WS: received non-JSON message, ignoring.");
+        return;
       }
-    }
 
-    if (parsedData.type === "leave_room") {
-      const user = users.find((x) => x.ws === ws);
-      if (!user) return;
+      if (parsedData.type === "join_room") {
+        const user = users.find((x) => x.ws === ws);
+        if (!user) return;
 
-      const roomId = String(parsedData.roomId);
+        const roomId = String(parsedData.roomId);
 
-      // Bug fix: was `=== parsedData.room` which kept the leaving room and
-      // removed everything else. Correct behaviour is to EXCLUDE the leaving room.
-      user.rooms = user.rooms.filter((x) => x !== roomId);
-      broadcastRoomUsers(roomId);
-    }
-
-    if (parsedData.type === "chat") {
-      // Normalize roomId to string for consistent in-memory comparisons
-      const roomId = String(parsedData.roomId);
-      const message = parsedData.message;
-
-      // Persist the chat message to the database
-      await prismaClient.chat.create({
-        data: {
-          roomId: Number(roomId), // DB schema stores roomId as Int
-          message,
-          userId,
-        },
-      });
-
-      // Broadcast to all other users who have joined this room.
-      // Skip the sender (user.ws !== ws).
-      users.forEach((user) => {
-        if (user.rooms.includes(roomId) && user.ws !== ws) {
-          user.ws.send(
-            JSON.stringify({
-              type: "chat",
-              message,
-              roomId,
-            }),
-          );
+        if (!user.rooms.includes(roomId)) {
+          user.rooms.push(roomId);
+          await broadcastRoomUsers(roomId);
         }
-      });
-    }
+      }
 
-    if (parsedData.type === "erase") {
-      const roomId = String(parsedData.roomId);
-      const shapeId = parsedData.shapeId;
+      if (parsedData.type === "leave_room") {
+        const user = users.find((x) => x.ws === ws);
+        if (!user) return;
 
-      // Find the chat entry that contains this shape's unique ID and delete it
-      const roomChats = await prismaClient.chat.findMany({
-        where: { roomId: Number(roomId) },
-      });
-      const chatToDelete = roomChats.find((chat) =>
-        chat.message.includes(shapeId),
-      );
+        const roomId = String(parsedData.roomId);
 
-      if (chatToDelete) {
-        await prismaClient.chat.delete({
-          where: { id: chatToDelete.id },
+        user.rooms = user.rooms.filter((x) => x !== roomId);
+        await broadcastRoomUsers(roomId);
+      }
+
+      if (parsedData.type === "chat") {
+        const roomId = getValidRoomId(parsedData.roomId);
+        if (roomId === null) return;
+
+        const roomIdStr = String(roomId);
+        const message = parsedData.message;
+
+        await prismaClient.chat.create({
+          data: {
+            roomId,
+            message,
+            userId,
+          },
+        });
+
+        users.forEach((user) => {
+          if (user.rooms.includes(roomIdStr) && user.ws !== ws) {
+            user.ws.send(
+              JSON.stringify({
+                type: "chat",
+                message,
+                roomId: roomIdStr,
+              }),
+            );
+          }
         });
       }
 
-      users.forEach((user) => {
-        if (user.rooms.includes(roomId) && user.ws !== ws) {
-          user.ws.send(
-            JSON.stringify({
-              type: "erase",
-              shapeId,
-              roomId,
-            }),
-          );
+      if (parsedData.type === "erase") {
+        const roomId = getValidRoomId(parsedData.roomId);
+        if (roomId === null) return;
+
+        const roomIdStr = String(roomId);
+        const shapeId = parsedData.shapeId;
+
+        const roomChats = await prismaClient.chat.findMany({
+          where: { roomId },
+        });
+
+        const chatToDelete = roomChats.find((chat) =>
+          chat.message.includes(shapeId),
+        );
+
+        if (chatToDelete) {
+          await prismaClient.chat.delete({
+            where: { id: chatToDelete.id },
+          });
         }
-      });
-    }
 
-    if (parsedData.type === "update") {
-      const roomId = String(parsedData.roomId);
-      const shapeId = parsedData.shapeId;
-      const message = parsedData.message;
-
-      // Find the chat entry that contains this shape's unique ID and update its payload
-      const roomChats = await prismaClient.chat.findMany({
-        where: { roomId: Number(roomId) },
-      });
-      const chatToUpdate = roomChats.find((chat) =>
-        chat.message.includes(shapeId),
-      );
-
-      if (chatToUpdate) {
-        await prismaClient.chat.update({
-          where: { id: chatToUpdate.id },
-          data: { message },
+        users.forEach((user) => {
+          if (user.rooms.includes(roomIdStr) && user.ws !== ws) {
+            user.ws.send(
+              JSON.stringify({
+                type: "erase",
+                shapeId,
+                roomId: roomIdStr,
+              }),
+            );
+          }
         });
       }
 
-      users.forEach((user) => {
-        if (user.rooms.includes(roomId) && user.ws !== ws) {
-          user.ws.send(
-            JSON.stringify({
-              type: "update",
-              message,
-              roomId,
-            }),
-          );
+      if (parsedData.type === "update") {
+        const roomId = getValidRoomId(parsedData.roomId);
+        if (roomId === null) return;
+
+        const roomIdStr = String(roomId);
+        const shapeId = parsedData.shapeId;
+        const message = parsedData.message;
+
+        const roomChats = await prismaClient.chat.findMany({
+          where: { roomId },
+        });
+
+        const chatToUpdate = roomChats.find((chat) =>
+          chat.message.includes(shapeId),
+        );
+
+        if (chatToUpdate) {
+          await prismaClient.chat.update({
+            where: { id: chatToUpdate.id },
+            data: { message },
+          });
         }
-      });
+
+        users.forEach((user) => {
+          if (user.rooms.includes(roomIdStr) && user.ws !== ws) {
+            user.ws.send(
+              JSON.stringify({
+                type: "update",
+                message,
+                roomId: roomIdStr,
+              }),
+            );
+          }
+        });
+      }
+    } catch (err) {
+      console.error("Error processing WebSocket message:", err);
     }
   });
 

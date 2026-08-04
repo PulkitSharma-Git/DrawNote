@@ -4,6 +4,18 @@ This document provides a detailed summary of the logical changes, features, and 
 
 ## Latest Updates (July 2026)
 
+- **WebSocket Stability & Room Validation Improvements**
+
+  - Wrapped the `ws.on("message", ...)` handler in `apps/ws-backend/src/index.ts` with a top-level `try/catch` block to prevent unhandled database or processing exceptions from crashing the WebSocket server.
+  - Added centralized `roomId` validation for `chat`, `erase`, and `update` WebSocket events, rejecting invalid room IDs before any Prisma queries or writes and logging invalid requests safely.
+  - Updated the HTTP backend `POST /room` endpoint to return **400 Bad Request** for invalid Zod validation instead of a successful `200 OK` response, preventing erroneous frontend redirects.
+  - Added server-side validation to `GET /chats/:roomId`, returning **400 Bad Request** when an invalid room ID is supplied instead of relying on exception handling.
+  - Added client-side validation in `RoomCanvas.tsx` to detect invalid room IDs on mount and display an error state instead of attempting a WebSocket connection.
+  - Added frontend room name validation (3–20 characters) to both `NewRoomModal.tsx` and `RoomForm.tsx`, displaying descriptive validation errors and preventing invalid room creation requests.
+  - Eliminated the `/canvas/undefined` redirect by combining frontend validation with proper HTTP error responses for invalid room creation requests.
+  - Improved overall backend resilience by ensuring malformed room IDs and unexpected WebSocket processing errors no longer result in production server crashes.
+
+
 - **Optimistic Room Deletion with Undo Toast & Standalone Delete Room Modal**
   - Refactored [Room.tsx](file:///Users/mac/Desktop/DrawNote/apps/frontend/components/dashboard/Room.tsx) to perform instant card removal from the frontend UI upon clicking delete.
   - Created a modular standalone [DeleteRoomModal.tsx](file:///Users/mac/Desktop/DrawNote/apps/frontend/components/dashboard/DeleteRoomModal.tsx) component wrapping the `CustomModal` confirmation logic with a clean, simplified and concise warning prompt.
