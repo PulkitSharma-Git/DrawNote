@@ -1,9 +1,8 @@
 <p align="center">
-  <img width="412" height="139" alt="Screenshot" src="https://github.com/user-attachments/assets/002c5551-da16-4c91-808b-c0944d41944b" />
+  <img width="412" height="139" alt="DrawNote" src="https://github.com/user-attachments/assets/002c5551-da16-4c91-808b-c0944d41944b" />
 </p>
 
 <p align="center">
-
 <img src="https://img.shields.io/badge/Next.js-000000?logo=nextdotjs&logoColor=white">
 <img src="https://img.shields.io/badge/React-20232A?logo=react&logoColor=61DAFB">
 <img src="https://img.shields.io/badge/TypeScript-3178C6?logo=typescript&logoColor=white">
@@ -12,7 +11,6 @@
 <img src="https://img.shields.io/badge/PostgreSQL-4169E1?logo=postgresql&logoColor=white">
 <img src="https://img.shields.io/badge/Prisma-2D3748?logo=prisma">
 <img src="https://img.shields.io/badge/Turborepo-monorepo-EF4444?logo=turborepo">
-
 </p>
 
 <p align="center">
@@ -23,83 +21,44 @@ DrawNote is a **real-time collaborative whiteboard** built for seamless brainsto
 
 Users can **draw together on an infinite canvas**, with instant synchronization powered by WebSockets and persistent event storage.
 
-🌐 **Live Demo**  
+**Live Demo**  
 https://drawnote1.vercel.app
 
----
+## Tech Highlights
 
-# ⚡ Tech Highlights
+- Real-time collaboration using **WebSockets**
+- **Event-driven architecture** with persistent drawing events
+- **Infinite canvas rendering** using HTML Canvas API
+- **Room-based collaboration** with shareable links
+- **Monorepo architecture** powered by Turborepo
+- **Canvas state reconstruction** via event replay
 
-• Real-time collaboration using **WebSockets**  
-• **Event-driven architecture** with persistent drawing events  
-• **Infinite canvas rendering** using HTML Canvas API  
-• **Room-based collaboration** with shareable links  
-• **Monorepo architecture** powered by Turborepo  
-• **Canvas state reconstruction** via event replay
-
----
-
-# 🎥 Demo
+## Demo
 
 https://github.com/user-attachments/assets/b73a10b1-fb4f-4b8a-b7e7-c6e9a76b5d33
 
----
+## Screenshots
 
-# 📸 Screenshots
+<img width="1440" height="810" alt="Screenshot 2026-03-12 at 6 03 41 PM" src="https://github.com/user-attachments/assets/ea210f2c-0d70-480a-9f96-df78ee3d9b56" />
 
-<img width="1440" height="810" alt="Screenshot 2026-03-12 at 6 03 41 PM" src="https://github.com/user-attachments/assets/ea210f2c-0d70-480a-9f96-df78ee3d9b56" />
+<img width="1439" height="816" alt="Screenshot 2026-03-12 at 7 38 08 PM" src="https://github.com/user-attachments/assets/4788051a-0f7d-4ffb-bfed-3d457e1c2dc0" />
 
-<img width="1439" height="816" alt="Screenshot 2026-03-12 at 7 38 08 PM" src="https://github.com/user-attachments/assets/4788051a-0f7d-4ffb-bfed-3d457e1c2dc0" />
+<img width="1440" height="805" alt="Screenshot 2026-03-12 at 6 06 04 PM" src="https://github.com/user-attachments/assets/ba34cbcb-0c16-42af-a76a-9d122746c20c" />
 
-<img width="1440" height="805" alt="Screenshot 2026-03-12 at 6 06 04 PM" src="https://github.com/user-attachments/assets/ba34cbcb-0c16-42af-a76a-9d122746c20c" />
+<img width="1440" height="816" alt="Screenshot 2026-03-12 at 7 37 24 PM" src="https://github.com/user-attachments/assets/d67ce923-fcb0-4e41-be7c-8e4738743875" />
 
-<img width="1440" height="816" alt="Screenshot 2026-03-12 at 7 37 24 PM" src="https://github.com/user-attachments/assets/d67ce923-fcb0-4e41-be7c-8e4738743875" />
+## Features
 
----
-
-# ✨ Features
-
-### 🎨 Real-Time Collaboration
-
-Multiple users can draw simultaneously with instant synchronization.
-
-### 🌌 Infinite Canvas
-
-Users can draw without boundaries using a dynamically expanding canvas.
-
-### 🏠 Persistent Room System
-
-Rooms have permanent links and stored drawing history.
-
-### 🧠 Event Persistence
-
-All drawing events are stored in the database and replayed when new users join.
-
-### 🖌 Drawing Tools
-
-- Freehand drawing
-- Lines
-- Rectangles
-- Circles
-- Eraser
-- Diamond
-- Text
-- Resize
-- Move
-- Zoom In and Zoom Out
-- And More
-
-### 👥 Multi-User Synchronization
-
-Drawing updates are broadcast instantly to all users in the room.
-
-### 🔒 Secure Authentication
-
-JWT-based authentication protects room access.
-
----
-
-# 🏗 System Architecture
+- Real-time Collaboration
+- Infinite Canvas
+- Persistent Room System
+- Event Persistence
+- Multi-user Synchronization
+- Secure Authentication
+- Drawing Tools
+- Shareable Room Links
+- Canvas State Reconstruction
+## System Architecture
 
 DrawNote uses an **event-driven architecture** where drawing events are transmitted through WebSockets and persisted in the database.
 
@@ -126,9 +85,7 @@ Prisma --> HTTP
 Prisma --> WS
 ```
 
----
-
-# ⚡ Real-Time Drawing Flow
+## Real-Time Drawing Flow
 
 ```mermaid
 sequenceDiagram
@@ -146,13 +103,11 @@ B->>B: Render stroke on canvas
 
 This ensures:
 
-• instant drawing updates  
-• persistent event history  
-• consistent canvas state across users
+- Instant drawing updates
+- Persistent event history
+- Consistent canvas state across users
 
----
-
-# 🔄 Room Join & Canvas Reconstruction
+## Room Join & Canvas Reconstruction
 
 When a user joins a room, the stored drawing events are fetched and replayed.
 
@@ -173,13 +128,11 @@ User->>Canvas: Replay drawing events
 
 This allows:
 
-- persistent whiteboards
-- consistent canvas state
-- reliable collaboration
+- Persistent whiteboards
+- Consistent canvas state
+- Reliable collaboration
 
----
-
-# 📊 Distributed Scaling Architecture
+## Distributed Scaling Architecture
 
 To support high concurrency, DrawNote can scale horizontally.
 
@@ -210,51 +163,25 @@ Redis --> WS2
 
 ### Scaling Strategy
 
-• Load balancers distribute traffic  
-• Multiple WebSocket servers handle concurrent connections  
-• Redis Pub/Sub synchronizes events across servers
+- Load balancers distribute traffic
+- Multiple WebSocket servers handle concurrent connections
+- Redis Pub/Sub synchronizes events across servers
 
 This architecture enables DrawNote to scale to **thousands of concurrent users**.
 
----
+## Tech Stack
 
-# 🛠 Tech Stack
+| Layer | Technologies |
+|--------|--------------|
+| **Frontend** | Next.js, React, Tailwind CSS, Framer Motion, HTML Canvas API |
+| **Backend** | Node.js, Express.js, WebSockets (`ws`), JWT Authentication, Zod Validation |
+| **Database** | PostgreSQL, Prisma ORM |
+| **Monorepo** | Turborepo, Yarn Workspaces |
+| **Language** | TypeScript |
 
-## Frontend
+## Project Structure
 
-- **Next.js**
-- **React**
-- **Tailwind CSS**
-- **Framer Motion**
-- **HTML Canvas API**
-
-## Backend
-
-- **Node.js**
-- **Express.js**
-- **WebSockets (ws)**
-- **JWT Authentication**
-- **Zod Validation**
-
-## Database
-
-- **PostgreSQL**
-- **Prisma ORM**
-
-## Monorepo
-
-- **Turborepo**
-- **Yarn Workspaces**
-
-## Language
-
-- **TypeScript**
-
----
-
-# 📂 Project Structure
-
-```
+```text
 /
 ├── apps
 │   ├── frontend
@@ -270,32 +197,26 @@ This architecture enables DrawNote to scale to **thousands of concurrent users**
 └── turbo.json
 ```
 
----
+## Getting Started
 
-# 🚀 Getting Started
-
-## Clone the Repository
+### Clone the Repository
 
 ```bash
 git clone https://github.com/PulkitSharma-Git/DrawNote.git
 cd DrawNote
 ```
 
----
-
-## Install Dependencies
+### Install Dependencies
 
 ```bash
 yarn install
 ```
 
----
-
-## Setup Environment Variables
+### Setup Environment Variables
 
 Create `.env` files in:
 
-```
+```text
 apps/http-backend
 apps/ws-backend
 packages/db
@@ -303,120 +224,56 @@ packages/db
 
 Example:
 
-```
+```env
 DATABASE_URL=postgresql://user:password@localhost:5432/drawnote
 JWT_SECRET=your_secret
 ```
 
----
+### Setup Database
 
-## Setup Database
-
-```
+```bash
 cd packages/db
 
 npx prisma generate
 npx prisma db push
 ```
 
----
+### Run Development Servers
 
-## Run Development Servers
-
-```
+```bash
 yarn dev
 ```
 
 This launches:
 
-• Next.js frontend  
-• HTTP backend  
-• WebSocket server
+- Next.js frontend
+- HTTP backend
+- WebSocket server
 
----
-
-# 📈 Performance Characteristics
+## Performance
 
 DrawNote is optimized for:
 
-• low latency real-time updates  
-• scalable WebSocket communication  
-• efficient canvas rendering  
-• event-driven persistence model
+- Low-latency real-time updates
+- Scalable WebSocket communication
+- Efficient canvas rendering
+- Event-driven persistence
 
----
-
-# 🛣 Future Improvements
+## Roadmap
 
 - Stroke size control
-- Undo / redo functionality
+- Undo / Redo
 - Tablet stylus support
 - Improved mobile drawing experience
 - Cursor presence indicators
 - Export drawings (PNG / SVG)
 - Redis-based event streaming for production scaling
-- Multiple Backgrounds
+- Multiple backgrounds
 
----
-
-# 👨‍💻 Author
+## Author
 
 **Pulkit Sharma**
 
-GitHub  
-https://github.com/PulkitSharma-Git
+GitHub: https://github.com/PulkitSharma-Git
 
----
-
-⭐ If you found this project interesting, consider starring the repository.
-
-
-
-
-
-# Fix WebSocket Server Crash and '/canvas/undefined' Redirect
-
-## Problem Description
-1. **WebSocket Server Crash:** The production WebSocket server (`apps/ws-backend`) crashed due to a `PrismaClientValidationError` when saving a message for a room whose ID parsed as `NaN` (e.g., `data: { roomId: NaN }`). Since the `ws.on("message")` handler does not catch asynchronous DB exceptions, any validation error results in an unhandled promise rejection, crashing the server.
-2. **Redirection to `/canvas/undefined`:** When creating a room with invalid inputs (e.g., room name length not between 3 and 20 characters), `http-backend` validates the input via Zod and returns `200 OK` with JSON `{ message: "Incorrect inputs" }`. Because the status code is `200`, the frontend does not catch it as an error and tries to navigate to `/canvas/${data.roomId}`. Since `data.roomId` is undefined, the route becomes `/canvas/undefined`.
-
-## Proposed Changes
-
-### [Component: WebSocket Backend]
-
-#### [MODIFY] [index.ts](file:///Users/mac/Desktop/DrawNote/apps/ws-backend/src/index.ts)
-- Wrap the body of `ws.on("message", ...)` in a try/catch block to prevent any unhandled database or processing exceptions from crashing the process.
-- Validate `roomId` in the `"chat"`, `"erase"`, and `"update"` message handlers to ensure it is a valid integer before querying or inserting into the database. If it is invalid, log a warning and ignore/reject the message.
-
----
-
-### [Component: HTTP Backend]
-
-#### [MODIFY] [index.ts](file:///Users/mac/Desktop/DrawNote/apps/http-backend/src/index.ts)
-- In the `POST /room` endpoint, return a `400 Bad Request` instead of a 200 response when Zod schema validation fails.
-- In the `GET /chats/:roomId` endpoint, add validation to verify `roomId` is a valid number. Return a `400 Bad Request` if it is not, instead of relying on the catch block.
-
----
-
-### [Component: Frontend]
-
-#### [MODIFY] [RoomCanvas.tsx](file:///Users/mac/Desktop/DrawNote/apps/frontend/components/canvas/RoomCanvas.tsx)
-- Validate `roomId` on mount. If `roomId` is not a valid number (e.g. `isNaN(Number(roomId))`), set the state to `"error"` instead of initiating WebSocket connections with an invalid ID.
-
-#### [MODIFY] [NewRoomModal.tsx](file:///Users/mac/Desktop/DrawNote/apps/frontend/components/dashboard/NewRoomModal.tsx)
-- Add frontend validation for the room name length (must be between 3 and 20 characters) before sending the request.
-- Display a descriptive validation error if validation fails.
-
-#### [MODIFY] [RoomForm.tsx](file:///Users/mac/Desktop/DrawNote/apps/frontend/components/dashboard/RoomForm.tsx)
-- Add frontend validation for the room name length (must be between 3 and 20 characters) before sending the request.
-- Display a descriptive validation error if validation fails.
-
-## Verification Plan
-
-### Automated Tests
-- Build all packages using `npm run build` or `yarn build` to ensure type-safety.
-
-### Manual Verification
-- Test creating a room with names < 3 characters or > 20 characters and verify that validation errors are displayed without redirecting to `/canvas/undefined`.
-- Verify the server handles invalid room IDs without crashing by navigating to `/canvas/NaN`.
-- Verify drawing and updating shapes in valid rooms works properly.
+If you found this project useful, consider giving it a star.
