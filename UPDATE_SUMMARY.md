@@ -2,6 +2,12 @@
 
 This document provides a detailed summary of the logical changes, features, and fixes introduced to the DrawNote application across its commit history. It serves as a high-level changelog to track the project's evolution.
 
+## Latest Updates (August 2026)
+
+- **Cursor Position Streaming Feasibility & Technical Impact Study**
+  - Conducted a comprehensive analysis on the performance, rendering, and network impacts of streaming user cursors in real-time.
+  - Authored a detailed architectural report highlighting the $O(N^2)$ update overhead, database bypass requirements, and frontend performance optimizations (e.g. DOM/Canvas layering, LERP interpolation, client-side throttling).
+
 ## Latest Updates (July 2026)
 
 - **WebSocket Stability & Room Validation Improvements**
