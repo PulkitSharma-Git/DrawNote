@@ -1,8 +1,7 @@
 "use client";
 
-import { forwardRef, InputHTMLAttributes, useEffect, useState } from "react";
+import { forwardRef, InputHTMLAttributes, useState } from "react";
 import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
-import { MdOutlineErrorOutline } from "react-icons/md";
 
 type PasswordInputProps = Omit<
   InputHTMLAttributes<HTMLInputElement>,
@@ -16,7 +15,6 @@ export const PasswordInput = forwardRef<HTMLInputElement, PasswordInputProps>(
   ({ className, minLength = 8, showStrength = true, ...props }, ref) => {
     const [showPassword, setShowPassword] = useState(false);
     const [value, setValue] = useState("");
-    const [capsLock, setCapsLock] = useState(false);
 
     const strength = (() => {
       let score = 0;
@@ -33,19 +31,8 @@ export const PasswordInput = forwardRef<HTMLInputElement, PasswordInputProps>(
     const strengthPercent = (strength / 4) * 100;
     const hasInput = value.length > 0;
 
-    useEffect(() => {
-      const handler = (e: KeyboardEvent) =>
-        setCapsLock(e.getModifierState("CapsLock"));
-      window.addEventListener("keydown", handler);
-      window.addEventListener("keyup", handler);
-      return () => {
-        window.removeEventListener("keydown", handler);
-        window.removeEventListener("keyup", handler);
-      };
-    }, []);
-
     return (
-      <div className="space-y-2">
+      <div className="space-y-1.5">
         {/* Input */}
         <div className="relative">
           <input
@@ -53,7 +40,10 @@ export const PasswordInput = forwardRef<HTMLInputElement, PasswordInputProps>(
             {...props}
             type={showPassword ? "text" : "password"}
             value={value}
-            onChange={(e) => setValue(e.target.value)}
+            onChange={(e) => {
+              setValue(e.target.value);
+              props.onChange?.(e);
+            }}
             className={`w-full px-4 py-3 pr-12 rounded-xl bg-white/10 text-white border border-white/15 backdrop-blur-xl outline-none transition-all duration-300 ease-out placeholder:text-white/40 hover:bg-white/15 hover:border-white/25 focus:bg-black/40 focus:border-blue-400/40 focus:ring-2 focus:ring-blue-500/30 shadow-[0_4px_20px_rgba(0,0,0,0.4)] ${className || ""}`}
           />
           <button
@@ -70,35 +60,25 @@ export const PasswordInput = forwardRef<HTMLInputElement, PasswordInputProps>(
           </button>
         </div>
 
-        {/* Strength bar — hidden when showStrength=false */}
-        {showStrength && (
-          <>
-            <div
-              className={`h-2 w-full rounded-full bg-white/10 overflow-hidden transition-opacity duration-500 ${hasInput ? "opacity-100" : "opacity-0"}`}
-            >
+        {/* Strength bar & warnings */}
+        {showStrength && hasInput && (
+          <div className="space-y-1 pl-1">
+            <div className="h-1 w-full rounded-full bg-white/10 overflow-hidden">
               <div
                 style={{ width: `${strengthPercent}%` }}
                 className="h-full rounded-full bg-gradient-to-r from-blue-500 via-orange-400 to-red-500 transition-all duration-700 ease-in-out"
               />
             </div>
-            <p
-              className={`text-xs text-white/50 transition-opacity duration-500 ${hasInput ? "opacity-100" : "opacity-0"}`}
-            >
-              Strength: <span className="text-white">{strengthLabel}</span>
-            </p>
-            {hasInput && value.length < minLength && (
-              <p className="text-xs text-red-400">
-                Password must be at least {minLength} characters
+            <div className="flex justify-between items-center text-[10px] text-white/40">
+              <p>
+                Strength: <span className="text-white/60">{strengthLabel}</span>
               </p>
-            )}
-          </>
-        )}
-
-        {/* Caps Lock — always shown regardless of showStrength */}
-        {capsLock && hasInput && (
-          <div className="flex items-center gap-1 text-xs text-orange-400">
-            <MdOutlineErrorOutline />
-            Caps Lock is ON
+              {value.length < minLength && (
+                <p className="text-red-400/80 transition-all">
+                  Must be at least {minLength} characters
+                </p>
+              )}
+            </div>
           </div>
         )}
       </div>

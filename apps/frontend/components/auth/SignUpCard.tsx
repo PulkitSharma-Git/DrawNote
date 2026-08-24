@@ -1,7 +1,7 @@
 "use client";
 import { HTTP_BACKEND } from "@/config";
-import axios, { AxiosError } from "axios";
-import { useRef, useState } from "react";
+import axios from "axios";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Input } from "@/components/ui/Input";
@@ -9,50 +9,113 @@ import { PasswordInput } from "@/components/ui/PasswordInput";
 import { Button } from "@/components/ui/Button";
 import { FaSpinner } from "react-icons/fa";
 
+interface ValidationErrors {
+  name?: string;
+  email?: string;
+  password?: string;
+}
+
 export function SignUpCard() {
   const router = useRouter();
-  const nameRef = useRef<HTMLInputElement>(null);
-  const emailRef = useRef<HTMLInputElement>(null);
-  const passwordRef = useRef<HTMLInputElement>(null);
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [errors, setErrors] = useState<ValidationErrors>({});
+  const [touched, setTouched] = useState<{ name?: boolean; email?: boolean; password?: boolean }>({});
+
+  const validateField = (fieldName: keyof ValidationErrors, value: string, isSubmitting = false) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    let errMessage = "";
+
+    if (fieldName === "name") {
+      if (!value.trim()) {
+        if (isSubmitting) {
+          errMessage = "Name is required.";
+        }
+      } else if (value.length > 50) {
+        errMessage = "Name must be at most 50 characters long.";
+      }
+    }
+
+    if (fieldName === "email") {
+      if (!value.trim()) {
+        if (isSubmitting) {
+          errMessage = "Email address is required.";
+        }
+      } else if (!emailRegex.test(value)) {
+        errMessage = "Invalid email format.";
+      } else if (value.length > 100) {
+        errMessage = "Email must be at most 100 characters long.";
+      }
+    }
+
+    if (fieldName === "password") {
+      if (!value) {
+        if (isSubmitting) {
+          errMessage = "Password is required.";
+        }
+      } else if (value.length < 8) {
+        errMessage = "Password must be at least 8 characters long.";
+      } else if (value.length > 100) {
+        errMessage = "Password must be at most 100 characters long.";
+      }
+    }
+
+    setErrors((prev) => ({
+      ...prev,
+      [fieldName]: errMessage,
+    }));
+
+    return errMessage;
+  };
+
+  const handleBlur = (fieldName: keyof ValidationErrors, value: string) => {
+    setTouched((prev) => ({ ...prev, [fieldName]: true }));
+    validateField(fieldName, value);
+  };
+
+  const handleChange = (fieldName: keyof ValidationErrors, value: string) => {
+    if (fieldName === "name") setName(value);
+    if (fieldName === "email") setEmail(value);
+    if (fieldName === "password") setPassword(value);
+
+    if (touched[fieldName]) {
+      validateField(fieldName, value);
+    }
+  };
 
   async function onClickHandler() {
-    if (!nameRef.current || !emailRef.current || !passwordRef.current) return;
+    const nameErr = validateField("name", name, true);
+    const emailErr = validateField("email", email, true);
+    const passwordErr = validateField("password", password, true);
 
-    const email = emailRef.current.value;
-    const password = passwordRef.current.value;
+    setTouched({ name: true, email: true, password: true });
 
+    if (nameErr || emailErr || passwordErr) {
+      return;
+    }
+
+    setError("");
     setLoading(true);
     try {
-      // Step 1: Create the account
       await axios.post(`${HTTP_BACKEND}/signup`, {
-        name: nameRef.current.value,
+        name,
         username: email,
         password,
       });
 
-      // Step 2: Immediately sign in to get a token.
-      // Previously the app redirected to /signin and made the user sign in manually —
-      // this was an unnecessary extra step. We already have the credentials here, so
-      // we sign in right away for a smoother onboarding experience.
       const signinRes = await axios.post(`${HTTP_BACKEND}/signin`, {
         username: email,
         password,
       });
 
-      // Step 3: Persist the token so all subsequent API calls and WS connections
-      // can authenticate. This token is read from localStorage by RoomForm, Navbar,
-      // RoomCanvas, and the join page.
       localStorage.setItem("token", signinRes.data.token);
-
-      // Step 4: Send the user directly to the dashboard
       router.push("/join");
-    } catch (error) {
-      const err = error as AxiosError;
-      alert(
-        "Signup failed: " +
-          ((err.response?.data as { message: string })?.message ||
-            "Unknown error"),
+    } catch (err: any) {
+      setError(
+        err.response?.data?.message || "Signup failed. Please try again."
       );
     } finally {
       setLoading(false);
@@ -79,25 +142,54 @@ export function SignUpCard() {
       </div>
 
       {/* Form */}
-      <div className="space-y-3">
-        <Input
-          ref={nameRef}
-          type="text"
-          placeholder="Full name"
-          disabled={loading}
-        />
-        <Input
-          ref={emailRef}
-          type="email"
-          placeholder="Email address"
-          disabled={loading}
-        />
-        <PasswordInput
-          ref={passwordRef}
-          placeholder="Password"
-          disabled={loading}
-        />
+      <div className="space-y-4">
+        <div>
+          <Input
+            type="text"
+            placeholder="Full name"
+            disabled={loading}
+            value={name}
+            onChange={(e) => handleChange("name", e.target.value)}
+            onBlur={() => handleBlur("name", name)}
+          />
+          {touched.name && errors.name && (
+            <p className="text-xs text-red-400 mt-1.5 pl-1">{errors.name}</p>
+          )}
+        </div>
+
+        <div>
+          <Input
+            type="email"
+            placeholder="Email address"
+            disabled={loading}
+            value={email}
+            onChange={(e) => handleChange("email", e.target.value)}
+            onBlur={() => handleBlur("email", email)}
+          />
+          {touched.email && errors.email && (
+            <p className="text-xs text-red-400 mt-1.5 pl-1">{errors.email}</p>
+          )}
+        </div>
+
+        <div>
+          <PasswordInput
+            placeholder="Password"
+            disabled={loading}
+            value={password}
+            onChange={(e) => handleChange("password", e.target.value)}
+            onBlur={() => handleBlur("password", password)}
+          />
+          {touched.password && errors.password && errors.password !== "Password must be at least 8 characters long." && (
+            <p className="text-xs text-red-400 mt-1.5 pl-1">{errors.password}</p>
+          )}
+        </div>
       </div>
+
+      {error && (
+        <div className="text-sm text-red-400 bg-red-500/10 border border-red-500/20 rounded-xl p-3">
+          {error}
+        </div>
+      )}
 
       {/* CTA */}
       <Button
