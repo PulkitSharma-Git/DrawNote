@@ -9,9 +9,9 @@ services:
     autoDeploy: true
     envVars:
       - key: DATABASE_URL
-        value: "postgresql://neondb_owner:npg_0IBtxD6vHqMR@ep-dark-block-a8hhm0d4-pooler.eastus2.azure.neon.tech/neondb?sslmode=require&channel_binding=require"
+        sync: false
       - key: JWT_SECRET
-        value: "123123"
+        sync: false
 
   # WebSocket Backend Service
   - type: web
@@ -23,6 +23,6 @@ services:
     autoDeploy: true
     envVars:
       - key: DATABASE_URL
-        value: "postgresql://neondb_owner:npg_0IBtxD6vHqMR@ep-dark-block-a8hhm0d4-pooler.eastus2.azure.neon.tech/neondb?sslmode=require&channel_binding=require"
+        sync: false
       - key: JWT_SECRET
-        value: "123123"
+        sync: false

@@ -4,6 +4,9 @@ This document provides a detailed summary of the logical changes, features, and 
 
 ## Latest Updates (August 2026)
 
+- **Deployment Security Hardening**
+  - Removed plaintext database URLs (containing sensitive connection passwords) and JWT secrets from [render.yaml](file:///Users/mac/Desktop/DrawNote/render.yaml), configuring them as `sync: false` environment variables to protect credentials from git exposure.
+
 - **Authentication Security Upgrades & Zod Validation Middleware**
   - Integrated `bcryptjs` password encryption on registration and hash matching on login, securing authentication credentials in the database.
   - Created a batch database migration script [migrate-passwords.ts](file:///Users/mac/Desktop/DrawNote/apps/http-backend/src/migrate-passwords.ts) that fetches and encrypts all 35 legacy plaintext user passwords in the database using explicit `bcrypt.genSalt(10)`.
