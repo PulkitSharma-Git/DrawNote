@@ -9,6 +9,8 @@ import {
 } from "@repo/common/types";
 import { prismaClient } from "@repo/db/client";
 import cors from "cors";
+import bcrypt from "bcryptjs";
+import { validate } from "./validate";
 
 const app = express();
 app.use(express.json());
@@ -21,22 +23,16 @@ app.get("/health", (req, res) => {
   });
 });
 
-app.post("/signup", async (req, res) => {
-  const parsedData = CreateUserSchema.safeParse(req.body);
-  if (!parsedData.success) {
-    res.status(400).json({
-      message: parsedData.error.errors[0]?.message || "Incorrect inputs",
-      errors: parsedData.error.errors,
-    });
-    return;
-  }
+app.post("/signup", validate(CreateUserSchema), async (req, res) => {
+  const { username, password, name } = req.body;
   try {
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
     const user = await prismaClient.user.create({
       data: {
-        email: parsedData.data?.username,
-        // TODO: Hash the pw
-        password: parsedData.data.password,
-        name: parsedData.data.name,
+        email: username,
+        password: hashedPassword,
+        name: name,
       },
     });
     res.json({
@@ -49,21 +45,12 @@ app.post("/signup", async (req, res) => {
   }
 });
 
-app.post("/signin", async (req, res) => {
-  const parsedData = SigninSchema.safeParse(req.body);
-  if (!parsedData.success) {
-    res.status(400).json({
-      message: parsedData.error.errors[0]?.message || "Incorrect inputs",
-      errors: parsedData.error.errors,
-    });
-    return;
-  }
+app.post("/signin", validate(SigninSchema), async (req, res) => {
+  const { username, password } = req.body;
 
-  //TODO: Compare the hashed pws here
   const user = await prismaClient.user.findFirst({
     where: {
-      email: parsedData.data.username,
-      password: parsedData.data.password,
+      email: username,
     },
   });
 
@@ -74,11 +61,22 @@ app.post("/signin", async (req, res) => {
     return;
   }
 
+  const isPasswordMatch = await bcrypt.compare(password, user.password);
+  if (!isPasswordMatch) {
+    res.status(403).json({
+      message: "Not authorized",
+    });
+    return;
+  }
+
   const token = jwt.sign(
     {
-      userId: user?.id,
+      userId: user.id,
     },
     JWT_SECRET,
+    {
+      expiresIn: "24h",
+    }
   );
 
   res.json({
@@ -103,21 +101,15 @@ app.get("/getRooms", middleware, async (req, res) => {
   }
 });
 
-app.post("/room", middleware, async (req, res) => {
-  const parsedData = CreateRoomSchema.safeParse(req.body);
-  if (!parsedData.success) {
-  res.status(400).json({
-    message: "Incorrect inputs",
-  });
-  return;
-}
+app.post("/room", middleware, validate(CreateRoomSchema), async (req, res) => {
+  const { name } = req.body;
   // @ts-ignore: TODO: Fix this
   const userId = req.userId;
 
   try {
     const room = await prismaClient.room.create({
       data: {
-        slug: parsedData.data.name,
+        slug: name,
         adminId: userId as string,
       },
     });

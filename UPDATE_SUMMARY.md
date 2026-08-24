@@ -4,6 +4,13 @@ This document provides a detailed summary of the logical changes, features, and 
 
 ## Latest Updates (August 2026)
 
+- **Authentication Security Upgrades & Zod Validation Middleware**
+  - Integrated `bcryptjs` password encryption on registration and hash matching on login, securing authentication credentials in the database.
+  - Created a batch database migration script [migrate-passwords.ts](file:///Users/mac/Desktop/DrawNote/apps/http-backend/src/migrate-passwords.ts) that fetches and encrypts all 35 legacy plaintext user passwords in the database using explicit `bcrypt.genSalt(10)`.
+  - Configured the `/signin` router to strictly check password hashes via `bcrypt.compare` without any legacy plaintext fallback rules.
+  - Added a 24-hour expiration constraint (`expiresIn: "24h"`) on JWT generation to secure sessions.
+  - Created a reusable Express validator middleware in [validate.ts](file:///Users/mac/Desktop/DrawNote/apps/http-backend/src/validate.ts) to streamline request schema validations across `/signup`, `/signin`, and `/room` endpoints.
+
 - **Cursor Position Streaming Feasibility & Technical Impact Study**
   - Conducted a comprehensive analysis on the performance, rendering, and network impacts of streaming user cursors in real-time.
   - Authored a detailed architectural report highlighting the $O(N^2)$ update overhead, database bypass requirements, and frontend performance optimizations (e.g. DOM/Canvas layering, LERP interpolation, client-side throttling).
