@@ -4,6 +4,13 @@ This document provides a detailed summary of the logical changes, features, and 
 
 ## Latest Updates (August 2026)
 
+- **Authentication Security Upgrades & Zod Validation Middleware**
+  - Integrated `bcryptjs` password encryption on registration and hash matching on login, securing authentication credentials in the database.
+  - Created a batch database migration script [migrate-passwords.ts](file:///Users/mac/Desktop/DrawNote/apps/http-backend/src/migrate-passwords.ts) that fetches and encrypts all 35 legacy plaintext user passwords in the database using explicit `bcrypt.genSalt(10)`.
+  - Configured the `/signin` router to strictly check password hashes via `bcrypt.compare` without any legacy plaintext fallback rules.
+  - Added a 24-hour expiration constraint (`expiresIn: "24h"`) on JWT generation to secure sessions.
+  - Created a reusable Express validator middleware in [validate.ts](file:///Users/mac/Desktop/DrawNote/apps/http-backend/src/validate.ts) to streamline request schema validations across `/signup`, `/signin`, and `/room` endpoints.
+
 - **Cursor Position Streaming Feasibility & Technical Impact Study**
   - Conducted a comprehensive analysis on the performance, rendering, and network impacts of streaming user cursors in real-time.
   - Authored a detailed architectural report highlighting the $O(N^2)$ update overhead, database bypass requirements, and frontend performance optimizations (e.g. DOM/Canvas layering, LERP interpolation, client-side throttling).
@@ -28,6 +35,7 @@ This document provides a detailed summary of the logical changes, features, and 
   - Designed and implemented [UndoToast.tsx](file:///Users/mac/Desktop/DrawNote/apps/frontend/components/dashboard/UndoToast.tsx) at the bottom left with responsive layout configurations (centered width margins on mobile, bottom-left pinning on desktop), minimal text, a colorless/transparent Undo button (similar to the navbar sign-in style), and an optimized, butter-smooth hardware-accelerated progress bar transition (`transition: width 5000ms linear`) to replace stuttery React state updates.
   - Added robust state-preservation inside [join/page.tsx](file:///Users/mac/Desktop/DrawNote/apps/frontend/app/join/page.tsx) to support optimistic deletion (restoring position exactly on Undo), immediate API dispatch when a new deletion begins, and cleanup triggers on unmount. Removed `await` on backend deletion triggers so that network latency does not block hiding the toast.
   - Created a reusable `DestructiveButton` component inside [DestructiveButton.tsx](file:///Users/mac/Desktop/DrawNote/apps/frontend/components/ui/DestructiveButton.tsx) and integrated it inside both [DeleteRoomModal.tsx](file:///Users/mac/Desktop/DrawNote/apps/frontend/components/dashboard/DeleteRoomModal.tsx) and [UserDetails.tsx](file:///Users/mac/Desktop/DrawNote/apps/frontend/components/dashboard/UserDetails.tsx) to unify destructive action button styles.
+  - Redesigned the auth forms in [SignUpCard.tsx](file:///Users/mac/Desktop/DrawNote/apps/frontend/components/auth/SignUpCard.tsx) and [SignInPage.tsx](file:///Users/mac/Desktop/DrawNote/apps/frontend/components/auth/SignInPage.tsx) to perform basic pre-validations and display server-side validation error messages in a premium, integrated red inline feedback panel instead of silent success redirects or browser `alert()` popups, while completely removing the redundant global "Please fix the validation errors below" banner for local client-side checks to keep the visual flow clean.
 
 - **Minimal User Details Dropdown Card Redesign & Loading Skeleton**
   - Redesigned the user profile card popup in [UserDetails.tsx](file:///Users/mac/Desktop/DrawNote/apps/frontend/components/dashboard/UserDetails.tsx) that appears upon clicking the navbar avatar.
@@ -41,6 +49,8 @@ This document provides a detailed summary of the logical changes, features, and 
 
 - **Navbar Animation and Room Skeleton UI Improvements**
   - Disabled the initial up-to-down slide entrance animation on the [Navbar.tsx](file:///Users/mac/Desktop/DrawNote/apps/frontend/components/layout/Navbar.tsx) component when navigating to the rooms page (`/join`) by detecting the path using `usePathname()` from `next/navigation`.
+  - Resolved a duplicate password warning rendering bug on the Sign Up card by filtering out the parent component's error message block when the password input is already visually showing length feedback next to the strength indicator.
+  - Removed the Caps Lock warning message block, local state, and event listeners from the shared [PasswordInput.tsx](file:///Users/mac/Desktop/DrawNote/apps/frontend/components/ui/PasswordInput.tsx) component.
   - Replaced the generic, low-fidelity spinner loading indicator on the rooms list page [join/page.tsx](file:///Users/mac/Desktop/DrawNote/apps/frontend/app/join/page.tsx) with a grid of 6 pulsing skeleton cards.
   - Created a new [RoomSkeleton.tsx](file:///Users/mac/Desktop/DrawNote/apps/frontend/components/dashboard/RoomSkeleton.tsx) component, matching the visual geometry and using the same hover gradient background (`bg-gradient-to-br from-orange-500/20 via-red-500/10 to-blue-500/20`) of active [Room.tsx](file:///Users/mac/Desktop/DrawNote/apps/frontend/components/dashboard/Room.tsx) cards (configured with `opacity-70` to make it softer).
   - Removed the thin border outlines (`border border-white/10` and hover variants) from the arrow icon container on both the active [Room.tsx](file:///Users/mac/Desktop/DrawNote/apps/frontend/components/dashboard/Room.tsx) card and [RoomSkeleton.tsx](file:///Users/mac/Desktop/DrawNote/apps/frontend/components/dashboard/RoomSkeleton.tsx) placeholders to clean up the card interface.

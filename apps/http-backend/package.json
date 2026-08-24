@@ -12,6 +12,7 @@
     "@repo/backend-common": "*",
     "@repo/common": "*",
     "@repo/typescript-config": "*",
+    "@types/bcryptjs": "^3.0.0",
     "@types/express": "^5.0.0",
     "@types/jsonwebtoken": "^9.0.8"
   },
@@ -22,6 +23,7 @@
   "dependencies": {
     "@repo/db": "*",
     "@types/cors": "^2.8.17",
+    "bcryptjs": "^3.0.3",
     "cors": "^2.8.5",
     "express": "^4.21.2",
     "jsonwebtoken": "^9.0.2"

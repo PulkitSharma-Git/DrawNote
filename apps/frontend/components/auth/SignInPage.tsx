@@ -1,7 +1,7 @@
 "use client";
 import { HTTP_BACKEND } from "@/config";
 import axios from "axios";
-import { useRef, useState } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Input } from "@/components/ui/Input";
@@ -10,24 +10,93 @@ import { Button } from "@/components/ui/Button";
 import { SignInLayout } from "./SignInLayout";
 import { FaSpinner } from "react-icons/fa";
 
+interface ValidationErrors {
+  email?: string;
+  password?: string;
+}
+
 export function SignInPage() {
   const router = useRouter();
-  const emailRef = useRef<HTMLInputElement>(null);
-  const passwordRef = useRef<HTMLInputElement>(null);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [errors, setErrors] = useState<ValidationErrors>({});
+  const [touched, setTouched] = useState<{ email?: boolean; password?: boolean }>({});
+
+  const validateField = (fieldName: keyof ValidationErrors, value: string, isSubmitting = false) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    let errMessage = "";
+
+    if (fieldName === "email") {
+      if (!value.trim()) {
+        if (isSubmitting) {
+          errMessage = "Email address is required.";
+        }
+      } else if (!emailRegex.test(value)) {
+        errMessage = "Invalid email format.";
+      } else if (value.length > 100) {
+        errMessage = "Email must be at most 100 characters long.";
+      }
+    }
+
+    if (fieldName === "password") {
+      if (!value) {
+        if (isSubmitting) {
+          errMessage = "Password is required.";
+        }
+      } else if (value.length < 8) {
+        errMessage = "Password must be at least 8 characters long.";
+      } else if (value.length > 100) {
+        errMessage = "Password must be at most 100 characters long.";
+      }
+    }
+
+    setErrors((prev) => ({
+      ...prev,
+      [fieldName]: errMessage,
+    }));
+
+    return errMessage;
+  };
+
+  const handleBlur = (fieldName: keyof ValidationErrors, value: string) => {
+    setTouched((prev) => ({ ...prev, [fieldName]: true }));
+    validateField(fieldName, value);
+  };
+
+  const handleChange = (fieldName: keyof ValidationErrors, value: string) => {
+    if (fieldName === "email") setEmail(value);
+    if (fieldName === "password") setPassword(value);
+
+    if (touched[fieldName]) {
+      validateField(fieldName, value);
+    }
+  };
 
   async function onClickHandler() {
-    if (!emailRef.current || !passwordRef.current) return;
+    const emailErr = validateField("email", email, true);
+    const passwordErr = validateField("password", password, true);
+
+    setTouched({ email: true, password: true });
+
+    if (emailErr || passwordErr) {
+      return;
+    }
+
+    setError("");
     setLoading(true);
     try {
       const res = await axios.post(`${HTTP_BACKEND}/signin`, {
-        username: emailRef.current.value,
-        password: passwordRef.current.value,
+        username: email,
+        password,
       });
       localStorage.setItem("token", res.data.token);
       router.push("/join");
-    } catch {
-      alert("Invalid credentials");
+    } catch (err: any) {
+      setError(
+        err.response?.data?.message || "Invalid credentials. Please try again."
+      );
     } finally {
       setLoading(false);
     }
@@ -55,20 +124,41 @@ export function SignInPage() {
         </div>
 
         {/* Inputs */}
-        <div className="space-y-3">
-          <Input
-            ref={emailRef}
-            type="email"
-            placeholder="Email address"
-            disabled={loading}
-          />
-          <PasswordInput
-            ref={passwordRef}
-            placeholder="Password"
-            disabled={loading}
-            showStrength={false}
-          />
+        <div className="space-y-4">
+          <div>
+            <Input
+              type="email"
+              placeholder="Email address"
+              disabled={loading}
+              value={email}
+              onChange={(e) => handleChange("email", e.target.value)}
+              onBlur={() => handleBlur("email", email)}
+            />
+            {touched.email && errors.email && (
+              <p className="text-xs text-red-400 mt-1.5 pl-1">{errors.email}</p>
+            )}
+          </div>
+
+          <div>
+            <PasswordInput
+              placeholder="Password"
+              disabled={loading}
+              value={password}
+              onChange={(e) => handleChange("password", e.target.value)}
+              onBlur={() => handleBlur("password", password)}
+              showStrength={false}
+            />
+            {touched.password && errors.password && (
+              <p className="text-xs text-red-400 mt-1.5 pl-1">{errors.password}</p>
+            )}
+          </div>
         </div>
+
+        {error && (
+          <div className="text-sm text-red-400 bg-red-500/10 border border-red-500/20 rounded-xl p-3">
+            {error}
+          </div>
+        )}
 
         {/* CTA */}
         <Button
